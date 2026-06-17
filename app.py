@@ -66,13 +66,12 @@ class Customer(db.Model) :
     id = db.Column(db.Integer,primary_key=True)
     customer_name = db.Column(db.String(100))
     customer_id = db.Column(db.String(100))
-    customer_phone_number = db.Column(db.String(20))
-    customer_entry_date = db.Column(db.DateTime, default=datetime.utcnow)
-    customer_purshace_amount = db.Column(db.DateTime, nullable=True)
+    customer_phone_number = db.Column(db.String(10))
+    customer_address = db.Column(db.String(200))
     
 class Billing(db.Model) :
     id = db.Column(db.Integer,primary_key=True)
-    customer_no = db.Column(db.Integer)
+    customer_no = db.Column(db.String(10))
     customer_name = db.Column(db.String(100))
     product_id = db.Column(db.String(100),db.ForeignKey('product.product_id'))
     product_name = db.Column(db.String(100))
@@ -156,9 +155,9 @@ def new_product():
 @app.route('/new_billing', methods=['GET', 'POST'])
 @login_required
 def new_billing():
-    
     bill = Billing.query.all()
-    products = SelledProduct.query.order_by(SelledProduct.scanned_at.desc()).all()
+    selled_products = SelledProduct.query.order_by(SelledProduct.scanned_at.desc()).all()
+    products = Product.query.filter_by(status='scanned').all()
     if request.method == 'POST':
         customer_no = request.form.get('customer_no')
         customer_name = request.form.get('customer_name')
@@ -183,7 +182,7 @@ def new_billing():
         db.session.commit()
         flash('Billing added successfully', 'success')
         return redirect(url_for('new_billing'))
-    return render_template('new_billing.html', bill=bill, products=products)
+    return render_template('new_billing.html', bill=bill, selled_products=selled_products, products=products)
 
 
 
@@ -200,19 +199,19 @@ def verify_id():
     product = Product.query.filter_by(id=Product_id).first()
     
     # 3. Check if the letter exists and if it is 'Approved'
-    if not product or product.status != 'sold':
+    if not product or product.status != 'active':
         # If it exists but is already complete, give a specific message
         if product and product.status == 'scanned':
             flash(f"Already Scanned Completed {product.id}", "warning")
         else:
             flash("Invalid Product ID or not approved.", "error")
-        return redirect(url_for('open_scanner'))
+        return redirect(url_for('new_billing'))
     
     # 4. Process the valid, approved letter
     product.status = 'scanned'  # Mark as scanned/used
     add_product = SelledProduct(
         selled_product_name=product.product_name,
-        selled_product_id=product.product_id,
+        selled_product_id=product.id,
         selled_customer_id=product.Customer_id
     )
     db.session.add(add_product)
@@ -221,6 +220,22 @@ def verify_id():
     flash(f"Product ID {product.id} verified and marked as scanned!", "success")
     return redirect(url_for('new_billing'))
 
+@app.route('/search_contact', methods=['GET', 'POST'])
+def search_contact():
+    if request.method == 'POST':
+        customer_no = request.form.get('customer_no')
+        if not customer_no:
+            flash("Please enter a Customer Number to search.", "warning")
+            return redirect(url_for('search_contact'))
+        
+        customer = Customer.query.filter_by(customer_no=customer_no).first()
+        if not customer:
+            flash(f"No customer found with Number: {customer_no}", "error")
+            return redirect(url_for('search_contact'))
+        
+        return render_template('customer_details.html', customer=customer)
+    
+    return redirect(url_for('new_billing'))  # Redirect to billing page if accessed via GET
 
 # ==============================
 # Bulk Upload Route

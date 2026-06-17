@@ -7,10 +7,12 @@
     <title>Security Gateway Control</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap"
+        rel="stylesheet">
+
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-    
+
     <style>
         :root {
             /* Architectural System Tokens */
@@ -19,19 +21,19 @@
             --text-primary: #0f172a;
             --text-secondary: #475569;
             --text-muted: #94a3b8;
-            
+
             --brand-primary: #2563eb;
             --brand-primary-light: #eff6ff;
             --brand-danger: #ef4444;
             --brand-success: #16a34a;
-            
+
             --border-subtle: #f1f5f9;
             --border-strong: #e2e8f0;
-            
+
             --radius-xl: 14px;
             --radius-md: 8px;
             --radius-sm: 4px;
-            
+
             --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
             --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -135,8 +137,8 @@
         }
 
         /* Action Input Form Configurations */
-        .form-group { 
-            margin-bottom: 12px; 
+        .form-group {
+            margin-bottom: 12px;
         }
 
         .input-with-action {
@@ -179,7 +181,7 @@
             background-color: var(--brand-primary-light);
             border-color: var(--brand-primary);
         }
-        
+
         .btn-action-toggle.active {
             background-color: var(--brand-danger);
             color: white;
@@ -219,7 +221,9 @@
             transition: var(--transition-fast);
         }
 
-        .btn-submit:hover { background-color: #1d4ed8; }
+        .btn-submit:hover {
+            background-color: #1d4ed8;
+        }
 
         /* Real-Time Filter Select Sub-system */
         .filter-section {
@@ -228,7 +232,9 @@
             border-top: 1px solid var(--border-subtle);
         }
 
-        .filter-group { margin-bottom: 10px; }
+        .filter-group {
+            margin-bottom: 10px;
+        }
 
         .filter-label {
             font-size: 0.7rem;
@@ -252,7 +258,11 @@
         }
 
         /* Flash Message Alert Banners */
-        .alert-list { list-style: none; margin-bottom: 12px; }
+        .alert-list {
+            list-style: none;
+            margin-bottom: 12px;
+        }
+
         .alert-item {
             padding: 10px 12px;
             border-radius: var(--radius-md);
@@ -268,7 +278,8 @@
         .records-wrapper-box {
             display: flex;
             flex-direction: column;
-            gap: 4px; /* Extreme tight tracking packing values */
+            gap: 4px;
+            /* Extreme tight tracking packing values */
         }
 
         .dense-strip-row {
@@ -345,8 +356,16 @@
             border-radius: 4px;
             text-transform: uppercase;
         }
-        .pill-dept { background: #f5f3ff; color: #6d28d9; }
-        .pill-year { background: #f0fdf4; color: #16a34a; }
+
+        .pill-dept {
+            background: #f5f3ff;
+            color: #6d28d9;
+        }
+
+        .pill-year {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
 
         .empty-fallback-state {
             background: var(--bg-card);
@@ -372,24 +391,24 @@
     </header>
 
     <main class="dashboard-container">
-        
+
         <aside class="left-column">
             <div class="panel-card">
                 <h2 class="panel-title">Verification Engine</h2>
 
                 {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        <ul class="alert-list">
-                            {% for category, message in messages %}
-                                <li class="alert-item" style="
-                                    background-color: {% if category == 'success' %}#d1fae5{% elif category == 'danger' %}#fee2e2{% else %}#f1f5f9{% endif %};
-                                    color: {% if category == 'success' %}#065f46{% elif category == 'danger' %}#991b1b{% else %}#334155{% endif %};
-                                ">
-                                    {{ message }}
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
+                {% if messages %}
+                <ul class="alert-list">
+                    {% for category, message in messages %}
+                    <li class="alert-item"
+                        style="
+                                    background-color: {% if category == 'success' %}#d1fae5{% elif category == 'danger' %} #fee2e2 {% else %} #f1f5f9 {% endif %};
+                                    color: {% if category == 'success' %} #065f46{% elif category == 'danger' %}#991b1b{% else %}#334155{% endif %};">
+                        {{ message }}
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
                 {% endwith %}
 
                 <form id="verificationForm" action="/verify_id" method="post">
@@ -399,8 +418,10 @@
 
                     <div class="form-group">
                         <div class="input-with-action">
-                            <input type="number" name="product_id" id="product_id" class="form-input" placeholder="Scan or Type Pass ID..." autocomplete="off" required>
-                            <button type="button" class="btn-action-toggle" id="toggleScannerBtn" title="Scan QR Code with Camera">
+                            <input type="number" name="product_id" id="product_id" class="form-input"
+                                placeholder="Scan or Type Pass ID..." autocomplete="off" required>
+                            <button type="button" class="btn-action-toggle" id="toggleScannerBtn"
+                                title="Scan QR Code with Camera">
                                 📷
                             </button>
                         </div>
@@ -408,19 +429,44 @@
                     <button type="submit" class="btn-submit">Verify Identity</button>
                 </form>
 
-                </div>
+            </div>
             </div>
         </aside>
 
         <section class="right-column">
             <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
                 <h2 class="panel-title" style="margin-bottom: 0;">Today's Verification Entries</h2>
-                <span id="liveCounter" style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); background: #e2e8f0; padding: 2px 8px; border-radius: 10px;">0 Active</span>
+                <span id="liveCounter"
+                    style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); background: #e2e8f0; padding: 2px 8px; border-radius: 10px;">0
+                    Active</span>
             </div>
 
+            {{ selled_products|length }} total entries for the day.
+
+            <hi>asf</hi>
+           
+
             {% for p in products %}
-            {{ p.product_name }}
+            <table>
+                <tr>
+                    <td>{{ p.id }}</td>
+                    <td>{{ p.product_name }}</td>
+                    <td>{{ p.product_selling_amount }}</td> 
+                    <td><a href="/discount_apply">Apply Discount</a></td>
+                </tr>
+            </table>
+            {{ p.product_name }} jf
             {% endfor %}
+
+            <form action="/new_billing" method="POST">
+                <label>Customer Number</label>
+                <input type="text" id="customer_no" name="customer_no" required>
+                <a href="/search_contact">?</a>
+                <label>Customer Name</label>
+                <input type="text" id="customer_name" name="customer_name" required>
+                <button type="submit">Submit</button>
+            </form>
+
         </section>
     </main>
 
@@ -448,9 +494,9 @@
 
             // Initialize Scanner instance targeting the DOM element block
             html5QrcodeScanner = new Html5Qrcode("qr-reader");
-            
-            const config = { 
-                fps: 15, 
+
+            const config = {
+                fps: 15,
                 qrbox: (width, height) => {
                     // Responsive sizing targeting 70% width of container bounding size box
                     const size = Math.min(width, height) * 0.7;
@@ -460,9 +506,9 @@
 
             // Start stream using the environment-facing (back) camera
             html5QrcodeScanner.start(
-                { facingMode: "environment" }, 
-                config, 
-                onScanSuccess, 
+                { facingMode: "environment" },
+                config,
+                onScanSuccess,
                 onScanFailure
             ).catch(err => {
                 console.error("Camera access failed:", err);
@@ -494,12 +540,12 @@
 
         // Triggered instantly when a valid QR matrix code is scanned 
         function onScanSuccess(decodedText, decodedResult) {
-            const parsedId = decodedText.replace(/\D/g, ''); 
-            
+            const parsedId = decodedText.replace(/\D/g, '');
+
             if (parsedId) {
                 productIdInput.value = parsedId;
                 stopScanner();
-                
+
                 // Instantly dispatch form submit action payload matching requirements
                 verificationForm.submit();
             } else {
@@ -512,7 +558,7 @@
             // html5qrcode checks frame arrays sequentially; failure alerts here are overly verbose
         }
 
-        
+
         // Initialize display configuration checks inside execution space
         document.addEventListener("DOMContentLoaded", () => {
             runLiveDenseFilter();
