@@ -68,6 +68,10 @@ class Customer(db.Model) :
     customer_id = db.Column(db.String(100))
     customer_phone_number = db.Column(db.String(10))
     customer_address = db.Column(db.String(200))
+    __tablename__ = 'customer'
+    
+    
+    
     
 class Billing(db.Model) :
     id = db.Column(db.Integer,primary_key=True)
@@ -152,39 +156,58 @@ def new_product():
 
     return render_template('new_product.html')
 
+
+@app.route('/search_contact/<customer_no>', methods=['GET'])
+@login_required
+def search_contact(customer_no):
+    customer = Customer.query.filter_by(customer_phone_number=customer_no).first()
+    if not customer:
+        return jsonify({"success": False, "message": "Customer not found"}), 404
+        
+    return jsonify({
+        "success": True,
+        "customer_name": customer.customer_name,
+        "customer_address": customer.customer_address
+    })
+
 @app.route('/new_billing', methods=['GET', 'POST'])
 @login_required
 def new_billing():
     bill = Billing.query.all()
     selled_products = SelledProduct.query.order_by(SelledProduct.scanned_at.desc()).all()
     products = Product.query.filter_by(status='scanned').all()
+    
     if request.method == 'POST':
+        # Extract values from form submission
         customer_no = request.form.get('customer_no')
         customer_name = request.form.get('customer_name')
-        product_id = request.form.get('product_id')
-        product_name = request.form.get('product_name')
-        product_amount = request.form.get('product_amount')
-        product_quantity = request.form.get('product_quantity')
-        billing_amount = request.form.get('billing_amount')
-        total_quantity = request.form.get('total_quantity')
-
+        customer_address = request.form.get('customer_address')
+        
         billing = Billing(
             customer_no=customer_no,
             customer_name=customer_name,
-            product_id=product_id,
-            product_name=product_name,
-            product_amount=product_amount,
-            product_quantity=product_quantity,
-            billing_amount=billing_amount,
-            total_quantity=total_quantity
+            customer_address=customer_address
         )
         db.session.add(billing)
         db.session.commit()
         flash('Billing added successfully', 'success')
         return redirect(url_for('new_billing'))
-    return render_template('new_billing.html', bill=bill, selled_products=selled_products, products=products)
+        
+    return render_template(
+        'new_billing.html', 
+        bill=bill, 
+        selled_products=selled_products, 
+        products=products,
+        customer_no='', 
+        customer_name='', 
+        customer_address=''
+    )
 
-
+@app.route('/customer_page')
+@login_required
+def customer_page():
+    customers = Customer.query.all()
+    return render_template('customer_page.html', customers=customers)
 
 @app.route('/verify_id', methods=['POST'])
 def verify_id():
@@ -220,23 +243,6 @@ def verify_id():
     flash(f"Product ID {product.id} verified and marked as scanned!", "success")
     return redirect(url_for('new_billing'))
 
-@app.route('/search_contact', methods=['GET', 'POST'])
-def search_contact():
-    if request.method == 'POST':
-        customer_no = request.form.get('customer_no')
-        if not customer_no:
-            flash("Please enter a Customer Number to search.", "warning")
-            return redirect(url_for('search_contact'))
-        
-        customer = Customer.query.filter_by(customer_no=customer_no).first()
-        if not customer:
-            flash(f"No customer found with Number: {customer_no}", "error")
-            return redirect(url_for('search_contact'))
-        
-        return render_template('customer_details.html', customer=customer)
-    
-    return redirect(url_for('new_billing'))  # Redirect to billing page if accessed via GET
-
 # ==============================
 # Bulk Upload Route
 # ==============================
@@ -264,8 +270,8 @@ def upload_products():
             file_ext = file.filename.rsplit('.', 1)[1].lower()
             
             try:
-                # Force specific columns to be read as strings to preserve formatting
-                string_columns = ['product_name', 'product_id', 'product_selling_amount', 'product_raw_amount', 'product_percentage', 'discount', 'product_location', 'product_entry_date', 'product_exit_date']
+                # Force identifier and names to remain string type to prevent truncation
+                string_columns = ['product_name', 'product_id', 'product_location']
                 converters = {col: str for col in string_columns}
                 
                 # Parse based on file type
@@ -281,17 +287,36 @@ def upload_products():
                 products_to_add = []
                 duplicate_errors = []
                 
+                # Helper function to convert dynamic row text into datetime or None
+                def parse_date(val):
+                    if not val or str(val).strip().lower() in ['nil', 'none', 'null', '']:
+                        return None
+                    try:
+                        # Handles typical pandas string conversions
+                        return datetime.strptime(str(val).strip(), "%Y-%m-%d %H:%M:%S")
+                    except ValueError:
+                        try:
+                            # Fallback for shorthand dates "YYYY-MM-DD"
+                            return datetime.strptime(str(val).strip(), "%Y-%m-%d")
+                        except ValueError:
+                            return None
+
                 # Iterate rows and extract data
                 for index, row in df.iterrows():
                     product_name_val = str(row.get('product_name', '')).strip() if row.get('product_name') else None
                     product_id_val = str(row.get('product_id', '')).strip() if row.get('product_id') else None
+                    
+                    # Numeric conversions (handle potential string or NaN states gracefully)
                     product_selling_amount_val = row.get('product_selling_amount')  
                     product_raw_amount_val = row.get('product_raw_amount')
-                    product_percentage_val = row.get('product_percentage')
+                    product_percentage_val = None if str(row.get('product_percentage')).strip().lower() == 'nil' else row.get('product_percentage')
                     discount_val = row.get('discount')
                     product_location_val = str(row.get('product_location', '')).strip() if row.get('product_location') else None
-                    product_entry_date_val = row.get('product_entry_date')
-                    product_exit_date_val = row.get('product_exit_date')
+                    
+                    # Safely handle the Date Conversions
+                    product_entry_date_val = parse_date(row.get('product_entry_date'))
+                    product_exit_date_val = parse_date(row.get('product_exit_date'))
+                    
                     # Validate required constraints
                     if not product_name_val or not product_id_val:
                         continue # Skip bad/empty rows
@@ -315,15 +340,7 @@ def upload_products():
                     )
                     products_to_add.append(product)
                 
-                # Commit valid rows dynamically
-                if products_to_add:
-                    db.session.bulk_save_objects(products_to_add)
-                    db.session.commit()
-                    flash(f'Successfully imported {len(products_to_add)} Product records!', 'success') 
-                    
-                    products_to_add.append(product)
-                
-                # Commit valid rows dynamically
+                # Commit valid rows dynamically (Removed the duplicated block)
                 if products_to_add:
                     db.session.bulk_save_objects(products_to_add)
                     db.session.commit()
@@ -346,7 +363,96 @@ def upload_products():
             
     return render_template('products_bulk_import.html')
 
-
+@app.route('/upload_clients', methods=['GET', 'POST'])
+def upload_clients():
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('No file part in the request.', 'danger')
+            return redirect(request.url)
+        
+        file = request.files['file']
+        
+        if file.filename == '':
+            flash('No file selected. Please choose a file.', 'danger')
+            return redirect(request.url)
+        
+        if file and allowed_file(file.filename):
+            file_ext = file.filename.rsplit('.', 1)[1].lower()
+            
+            try:
+                # Force specific columns to be read as strings to preserve formatting
+                string_columns = ['client_name', 'client_id', 'client_phone_number', 'client_address']
+                converters = {col: str for col in string_columns}
+                
+                # Parse based on file type
+                if file_ext == 'csv':
+                    df = pd.read_csv(file, converters=converters)
+                else:
+                    df = pd.read_excel(file, converters=converters)
+                
+                # Clean header spacing
+                df.columns = df.columns.str.strip()
+                df = df.where(pd.notnull(df), None)
+                
+                clients_to_add = []
+                duplicate_errors = []
+                seen_in_file = set()  # Tracks IDs within the file to prevent internal duplicates
+                
+                # Iterate rows and extract data
+                for index, row in df.iterrows():
+                    # 1. Get raw string values from the spreadsheet columns
+                    client_name_val = str(row.get('client_name', '')).strip() if row.get('client_name') else None
+                    client_id_val = str(row.get('client_id', '')).strip() if row.get('client_id') else None
+                    client_phone_number_val = str(row.get('client_phone_number', '')).strip() if row.get('client_phone_number') else None
+                    client_address_val = str(row.get('client_address', '')).strip() if row.get('client_address') else None
+                    
+                    # Validate required fields
+                    if not client_name_val or not client_id_val:
+                        continue # Skip bad/empty rows
+                    
+                    # Check for duplicates within the uploaded file itself
+                    if client_id_val in seen_in_file:
+                        duplicate_errors.append(f"Row {index + 2}: Client ID '{client_id_val}' is duplicated inside the file. Skipped.")
+                        continue
+                    seen_in_file.add(client_id_val)
+                        
+                    # 2. Check database using your model's real property name: 'customer_id'
+                    existing = Customer.query.filter_by(customer_id=client_id_val).first()
+                    if existing:
+                        duplicate_errors.append(f"Row {index + 2}: Client ID '{client_id_val}' already exists in the system. Skipped.")
+                        continue
+                    
+                    # 3. Map sheet values to your exact model keywords
+                    client = Customer(
+                        customer_name=client_name_val,
+                        customer_id=client_id_val,
+                        customer_phone_number=client_phone_number_val,
+                        customer_address=client_address_val
+                    )
+                    clients_to_add.append(client)
+                
+                # Commit valid rows cleanly exactly once
+                if clients_to_add:
+                    db.session.bulk_save_objects(clients_to_add)
+                    db.session.commit()
+                    flash(f'Successfully imported {len(clients_to_add)} Client records!', 'success')
+                
+                if duplicate_errors:
+                    for err in duplicate_errors:
+                        flash(err, 'warning')
+                        
+                return redirect(url_for('shop_dashboard'))
+                
+            except Exception as e:
+                db.session.rollback()
+                flash(f"Error parsing file: {str(e)}", 'danger')
+                return redirect(request.url)
+                
+        else:
+            flash('Invalid format! Please use a valid .csv, .xlsx, or .xls file.', 'danger')
+            return redirect(request.url)
+            
+    return render_template('clients_bulk_import.html')
 
 
 @app.route('/logout')

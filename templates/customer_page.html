@@ -8,8 +8,9 @@
 <body>
     {% for customer in customers %}
         <h2>Customer Details</h2>
+        <p><strong>Customer ID:</strong> {{ customer.id }}</p>
         <p><strong>Customer Name:</strong> {{ customer.customer_name }}</p>
-        <p><strong>Customer Number:</strong> {{ customer.customer_no }}</p>
+        <p><strong>Customer Number:</strong> {{ customer.customer_phone_number }}</p>
         <p><strong>Customer Address:</strong> {{ customer.customer_address }}</p>
     {% endfor %}
 </body>

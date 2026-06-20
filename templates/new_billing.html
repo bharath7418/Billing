@@ -125,6 +125,7 @@
             border-radius: var(--radius-xl);
             padding: 16px;
             box-shadow: var(--shadow-sm);
+            margin-bottom: 16px;
         }
 
         .panel-title {
@@ -225,36 +226,54 @@
             background-color: #1d4ed8;
         }
 
-        /* Real-Time Filter Select Sub-system */
-        .filter-section {
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid var(--border-subtle);
-        }
-
-        .filter-group {
-            margin-bottom: 10px;
-        }
-
-        .filter-label {
-            font-size: 0.7rem;
-            font-weight: 700;
-            color: var(--text-muted);
-            margin-bottom: 4px;
+        /* Form Controls for Billing Form */
+        label {
             display: block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-top: 12px;
+            margin-bottom: 4px;
             text-transform: uppercase;
         }
 
-        .filter-select {
+        .form-control {
             width: 100%;
-            padding: 8px 12px;
-            border-radius: var(--radius-md);
+            padding: 10px 14px;
             border: 1px solid var(--border-strong);
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
             background-color: var(--bg-surface);
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--text-secondary);
             outline: none;
+            transition: var(--transition-fast);
+        }
+
+        .form-control:focus {
+            border-color: var(--brand-primary);
+            background-color: var(--bg-card);
+        }
+
+        /* Table Configurations */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 14px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-strong);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+
+        td {
+            padding: 10px 12px;
+            font-size: 0.85rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        td a {
+            color: var(--brand-primary);
+            text-decoration: none;
+            font-weight: 700;
         }
 
         /* Flash Message Alert Banners */
@@ -272,110 +291,6 @@
             display: flex;
             align-items: center;
             gap: 8px;
-        }
-
-        /* Dense Live Data Strip Matrix Architecture */
-        .records-wrapper-box {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            /* Extreme tight tracking packing values */
-        }
-
-        .dense-strip-row {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-md);
-            padding: 8px 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            transition: var(--transition-fast);
-        }
-
-        .dense-strip-row:hover {
-            border-color: var(--border-strong);
-            background-color: var(--brand-primary-light);
-            transform: translateX(2px);
-        }
-
-        .strip-left-block {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            min-width: 0;
-            flex: 1;
-        }
-
-        .inline-time-stamp {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.775rem;
-            font-weight: 700;
-            color: var(--brand-primary);
-            background: var(--bg-surface);
-            padding: 2px 6px;
-            border-radius: var(--radius-sm);
-            white-space: nowrap;
-        }
-
-        .inline-profile-data {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            min-width: 0;
-        }
-
-        .inline-student-name {
-            font-size: 0.875rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .inline-pass-id {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            white-space: nowrap;
-        }
-
-        .strip-right-block {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            white-space: nowrap;
-        }
-
-        .micro-pill {
-            font-size: 0.675rem;
-            font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 4px;
-            text-transform: uppercase;
-        }
-
-        .pill-dept {
-            background: #f5f3ff;
-            color: #6d28d9;
-        }
-
-        .pill-year {
-            background: #f0fdf4;
-            color: #16a34a;
-        }
-
-        .empty-fallback-state {
-            background: var(--bg-card);
-            border: 1px dashed var(--border-strong);
-            border-radius: var(--radius-xl);
-            padding: 32px 16px;
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            font-weight: 600;
         }
     </style>
 </head>
@@ -402,8 +317,8 @@
                     {% for category, message in messages %}
                     <li class="alert-item"
                         style="
-                                    background-color: {% if category == 'success' %}#d1fae5{% elif category == 'danger' %} #fee2e2 {% else %} #f1f5f9 {% endif %};
-                                    color: {% if category == 'success' %} #065f46{% elif category == 'danger' %}#991b1b{% else %}#334155{% endif %};">
+                            background-color: {% if category == 'success' %}#d1fae5{% elif category == 'danger' %} #fee2e2 {% else %} #f1f5f9 {% endif %};
+                            color: {% if category == 'success' %} #065f46{% elif category == 'danger' %}#991b1b{% else %}#334155{% endif %};">
                         {{ message }}
                     </li>
                     {% endfor %}
@@ -428,8 +343,6 @@
                     </div>
                     <button type="submit" class="btn-submit">Verify Identity</button>
                 </form>
-
-            </div>
             </div>
         </aside>
 
@@ -437,36 +350,44 @@
             <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
                 <h2 class="panel-title" style="margin-bottom: 0;">Today's Verification Entries</h2>
                 <span id="liveCounter"
-                    style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); background: #e2e8f0; padding: 2px 8px; border-radius: 10px;">0
-                    Active</span>
+                    style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); background: #e2e8f0; padding: 2px 8px; border-radius: 10px;">
+                    {{ selled_products|length }} Active
+                </span>
             </div>
 
-            {{ selled_products|length }} total entries for the day.
-
-            <hi>asf</hi>
-           
+            <div style="font-size: 0.85rem; margin-bottom: 14px; color: var(--text-secondary);">
+                <strong>{{ selled_products|length }}</strong> total entries recorded for the day.
+            </div>
 
             {% for p in products %}
             <table>
                 <tr>
-                    <td>{{ p.id }}</td>
+                    <td><strong>ID:</strong> {{ p.id }}</td>
                     <td>{{ p.product_name }}</td>
-                    <td>{{ p.product_selling_amount }}</td> 
+                    <td>₹{{ p.product_selling_amount }}</td>
                     <td><a href="/discount_apply">Apply Discount</a></td>
                 </tr>
             </table>
-            {{ p.product_name }} jf
             {% endfor %}
+            <form method="POST" action="{{ url_for('new_billing') }}">
+                <div>
+                    <label for="customer_phone_number">Customer Phone Number:</label>   
+                    <input type="text" id="customer_phone_number" name="customer_phone_number" required>
+                </div>
 
-            <form action="/new_billing" method="POST">
-                <label>Customer Number</label>
-                <input type="text" id="customer_no" name="customer_no" required>
-                <a href="/search_contact">?</a>
-                <label>Customer Name</label>
-                <input type="text" id="customer_name" name="customer_name" required>
-                <button type="submit">Submit</button>
+                <div>
+                    <label for="customer_name">Customer Name:</label>
+                    <input type="text" id="customer_name" name="customer_name" required>
+                </div>
+
+                <div>
+                    <label for="customer_address">Customer Address:</label>
+                    <textarea id="customer_address" name="customer_address" required></textarea>
+                </div>
+
+                <button type="submit">Submit Billing</button>
             </form>
-
+            </div>
         </section>
     </main>
 
@@ -492,19 +413,16 @@
             toggleScannerBtn.innerText = '✕'; // Change camera icon to an exit cross
             toggleScannerBtn.title = "Stop Scanner";
 
-            // Initialize Scanner instance targeting the DOM element block
             html5QrcodeScanner = new Html5Qrcode("qr-reader");
 
             const config = {
                 fps: 15,
                 qrbox: (width, height) => {
-                    // Responsive sizing targeting 70% width of container bounding size box
                     const size = Math.min(width, height) * 0.7;
                     return { width: size, height: size };
                 }
             };
 
-            // Start stream using the environment-facing (back) camera
             html5QrcodeScanner.start(
                 { facingMode: "environment" },
                 config,
@@ -538,15 +456,12 @@
             toggleScannerBtn.title = "Scan QR Code with Camera";
         }
 
-        // Triggered instantly when a valid QR matrix code is scanned 
         function onScanSuccess(decodedText, decodedResult) {
             const parsedId = decodedText.replace(/\D/g, '');
 
             if (parsedId) {
                 productIdInput.value = parsedId;
                 stopScanner();
-
-                // Instantly dispatch form submit action payload matching requirements
                 verificationForm.submit();
             } else {
                 alert("Scanned non-numeric payload: " + decodedText + ". A valid numeric Pass ID is required.");
@@ -554,16 +469,44 @@
         }
 
         function onScanFailure(error) {
-            // Silent drop loop framework to keep scan processing performance clean 
-            // html5qrcode checks frame arrays sequentially; failure alerts here are overly verbose
+            // Drop sequential check frame array evaluation logs silently
         }
 
+        // Live API Look-up Operations (Fixed & Cleaned up)
+        document.getElementById('customer_phone_number').addEventListener('blur', function () {
+            const phoneNo = this.value.trim();
 
-        // Initialize display configuration checks inside execution space
-        document.addEventListener("DOMContentLoaded", () => {
-            runLiveDenseFilter();
+            // Only search if the user typed an adequate number of characters
+            if (phoneNo.length >= 10) {
+                fetch(`/search_contact/${phoneNo}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Customer not found');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            // Autofill fields cleanly with database response values
+                            document.getElementById('customer_name').value = data.customer_name;
+                            document.getElementById('customer_address').value = data.customer_address;
+                        }
+                    })
+                    .catch(error => {
+                        console.log("Lookup notification:", error.message);
+                        // Optional: clear inputs if customer isn't found to prepare for manual typing
+                        // document.getElementById('customer_name').value = '';
+                        // document.getElementById('customer_address').value = '';
+                    });
+            }
         });
     </script>
+
+
+
+
+
+
 </body>
 
 </html>
