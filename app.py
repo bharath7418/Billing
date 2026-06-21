@@ -46,19 +46,42 @@ class Product(db.Model) :
     product_id = db.Column(db.String(100))
     product_selling_amount = db.Column(db.Integer)
     product_raw_amount = db.Column(db.Integer)  
-    product_percentage = db.Column(db.Integer)
     discount = db.Column(db.Integer)
     product_location = db.Column(db.String(100))
     product_entry_date = db.Column(db.String(100))
     product_exit_date = db.Column(db.DateTime, default=None)
     Customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'), default=None)
     status = db.Column(db.String(20), default='active')  # active, sold, expired, etc.
+    
+    def apply_discount(self, discount_value, discount_type='percentage'):
+        """
+        Updates the discount and calculates the new product_selling_amount.
+        discount_type can be 'percentage' (automated) or 'manual' (flat rate deduction).
+        """
+        self.discount = discount_value
+        
+        if discount_type == 'percentage':
+            # Automated Percentage: e.g., 10% off raw amount
+            discount_amount = (self.product_raw_amount * discount_value) / 100
+            self.product_selling_amount = int(self.product_raw_amount - discount_amount)
+        elif discount_type == 'manual':
+            # Manual flat rate: e.g., Take $20 off raw amount
+            self.product_selling_amount = int(self.product_raw_amount - discount_value)
+            
+        # Ensure price doesn't drop below 0
+        if self.product_selling_amount < 0:
+            self.product_selling_amount = 0
+  
+  
+  
+  
   
 class SelledProduct(db.Model) :
     id = db.Column(db.Integer,primary_key=True)
     selled_product_name = db.Column(db.String(100))
     selled_product_id = db.Column(db.String(100))
     selled_customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'), nullable=True)
+    selled_product_amount = db.Column(db.Integer)
     scanned_at = db.Column(db.DateTime, default=datetime.utcnow)
     
  
@@ -243,6 +266,32 @@ def verify_id():
     flash(f"Product ID {product.id} verified and marked as scanned!", "success")
     return redirect(url_for('new_billing'))
 
+@app.route('/discount_apply', methods=['POST'])
+def discount_apply():
+    # Retrieve form data
+    prod_db_id = request.form.get('product_db_id')
+    discount_val = request.form.get('discount_value', type=int)
+    discount_type = request.form.get('discount_type') # 'percentage' or 'manual'
+
+    # Fetch the product from the database
+    product = Product.query.get_or_404(prod_db_id)
+
+    if discount_val is not None and discount_val >= 0:
+        try:
+            # Call our model's helper method
+            product.apply_discount(discount_val, discount_type)
+            db.session.commit()
+            flash(f"Discount applied successfully! New price: {product.product_selling_amount}", "success")
+        except Exception as e:
+            db.session.rollback()
+            flash("An error occurred while updating the price.", "danger")
+    else:
+        flash("Invalid discount value entered.", "warning")
+
+    return redirect(url_for('dashboard')) # Change 'dashboard' to whatever your main view is
+
+
+
 # ==============================
 # Bulk Upload Route
 # ==============================
@@ -309,7 +358,6 @@ def upload_products():
                     # Numeric conversions (handle potential string or NaN states gracefully)
                     product_selling_amount_val = row.get('product_selling_amount')  
                     product_raw_amount_val = row.get('product_raw_amount')
-                    product_percentage_val = None if str(row.get('product_percentage')).strip().lower() == 'nil' else row.get('product_percentage')
                     discount_val = row.get('discount')
                     product_location_val = str(row.get('product_location', '')).strip() if row.get('product_location') else None
                     
@@ -332,7 +380,6 @@ def upload_products():
                         product_id=product_id_val,
                         product_selling_amount=product_selling_amount_val,
                         product_raw_amount=product_raw_amount_val,
-                        product_percentage=product_percentage_val,
                         discount=discount_val,
                         product_location=product_location_val,
                         product_entry_date=product_entry_date_val,

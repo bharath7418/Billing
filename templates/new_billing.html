@@ -365,13 +365,32 @@
                     <td><strong>ID:</strong> {{ p.id }}</td>
                     <td>{{ p.product_name }}</td>
                     <td>₹{{ p.product_selling_amount }}</td>
+                    <form action="/discount_apply" method="POST" class="discount-form">
+                        <input type="hidden" name="product_db_id" value="{{ product.id }}">
+
+                        <div class="form-group">
+                            <label for="discount_type">Discount Method:</label>
+                            <select name="discount_type" id="discount_type" class="form-control">
+                                <option value="percentage">Automated Percentage (%)</option>
+                                <option value="manual">Manual Flat Amount ($)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="discount_value">Discount Value:</label>
+                            <input type="number" name="discount_value" id="discount_value" class="form-control"
+                                placeholder="e.g. 10" required min="0">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Apply Discount</button>
+                    </form>
                     <td><a href="/discount_apply">Apply Discount</a></td>
                 </tr>
             </table>
             {% endfor %}
             <form method="POST" action="{{ url_for('new_billing') }}">
                 <div>
-                    <label for="customer_phone_number">Customer Phone Number:</label>   
+                    <label for="customer_phone_number">Customer Phone Number:</label>
                     <input type="text" id="customer_phone_number" name="customer_phone_number" required>
                 </div>
 
