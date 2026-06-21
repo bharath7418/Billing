@@ -359,7 +359,7 @@
                 <strong>{{ selled_products|length }}</strong> total entries recorded for the day.
             </div>
 
-<table>
+            <table>
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -385,22 +385,28 @@
                             {% if p.product_selling_amount != p.backup_product_selling_amount %}
                             <s style="color: red;">₹{{ p.backup_product_selling_amount }}</s>
                             <span style="color: green; font-weight: bold; margin-left: 10px;">₹{{ p.product_selling_amount }}</span>
-                             
+
                             {% else %}
                             ₹{{ p.product_selling_amount }}
-                            {% if p.discount and p.discount > 0 %}
-                            <span style="color: blue; font-size: 0.85em;">({{ p.discount }}% available)</span>
                             {% endif %}
-                            {% endif %}
+
                         </td>
-                        
+
                         <td>
                             {% if p.product_selling_amount == p.backup_product_selling_amount %}
                             <a href="/discount_apply/{{ p.id }}">🏷️</a>
-                            {% else %}
-                                <span style="color: green; font-weight: bold;"><a href="/discount_remove/{{ p.id }}">💵</a></span>
+                            {% if p.discount and p.discount > 0 %}
+                            <span style="color: blue; font-size: 0.85em;">({{ p.discount }}% )</span>
                             {% endif %}
+                            {% else %}
+                            <span style="color: green; font-weight: bold;"><a
+                                    href="/discount_remove/{{ p.id }}">💵  <span style="color: blue; font-size: 0.85em;">(0%)</span> </a></span>
+                            {% endif %}
+                             <a href="/clear_product/{{ p.id }}">⚠️</a>
+                           
+
                         </td>
+                       
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -408,12 +414,15 @@
                 <tfoot style="background-color: #f9f9f9; font-weight: bold; border-top: 2px solid #ccc;">
                     <tr>
                         <td>Total Products: {{ total_count.value }}</td>
+
+
                         <td>Overall Summary:</td>
                         <td>
                             <div id="summary-price-container" data-base-total="{{ total_selling_amount.value }}">
                                 <s id="total-crossed" style="color: red; display: none;">₹{{ total_selling_amount.value }}</s>
                                 <span id="final-total-display" style="color: black;">₹{{ total_selling_amount.value }}</span>
-                                <span id="manual-text-label" style="display: none; color: darkgreen; font-size: 0.85em; margin-top: 4px;"></span>
+                                <span id="manual-text-label"
+                                    style="display: none; color: darkgreen; font-size: 0.85em; margin-top: 4px;"></span>
                             </div>
                         </td>
                         <td>
@@ -424,7 +433,8 @@
                     <tr style="background-color: #f1f3f5; border-top: 1px dashed #bbb;">
                         <td colspan="2" style="text-align: right; vertical-align: middle;">
                             Add Optional Discount?
-                            <select id="discount-toggle" onchange="toggleDiscountInput()" style="padding: 4px; margin-left: 10px;">
+                            <select id="discount-toggle" onchange="toggleDiscountInput()"
+                                style="padding: 4px; margin-left: 10px;">
                                 <option value="no">No</option>
                                 <option value="yes">Yes</option>
                             </select>
@@ -446,18 +456,28 @@
                     <tr>
                         <td style="padding: 12px; border: none;">
                             <label for="customer_phone_number">Customer Phone Number</label>
-                            <input type="text" id="customer_phone_number" name="customer_phone_number" class="form-control" placeholder="Enter phone..." required>
+                            <input type="text" id="customer_phone_number" name="customer_phone_number"
+                                class="form-control" placeholder="Enter phone..." required>
                         </td>
                         <td style="padding: 12px; border: none;">
                             <label for="customer_name">Customer Name</label>
-                            <input type="text" id="customer_name" name="customer_name" class="form-control" placeholder="Customer name..." required>
+                            <input type="text" id="customer_name" name="customer_name" class="form-control"
+                                placeholder="Customer name..." required>
                         </td>
                         <td style="padding: 12px; border: none;">
                             <label for="customer_address">Customer Address</label>
-                            <textarea id="customer_address" name="customer_address" class="form-control" rows="1" placeholder="Delivery destination address..." style="resize: vertical;" required></textarea>
+                            <textarea id="customer_address" name="customer_address" class="form-control" rows="1"
+                                placeholder="Delivery destination address..." style="resize: vertical;"
+                                required></textarea>
                         </td>
                     </tr>
                 </table>
+
+                <input type="hidden" name="total_selling_count" value="{{ total_count.value }}">
+                <input type="hidden" name="total_selling_amount" value="{{ total_selling_amount.value }}">
+
+
+
                 <button type="submit" class="btn-submit" style="margin-top: 12px;">Submit Billing</button>
             </form>
         </section>

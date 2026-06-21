@@ -89,8 +89,6 @@ class Customer(db.Model) :
     __tablename__ = 'customer'
     
     
-    
-    
 class Billing(db.Model) :
     id = db.Column(db.Integer,primary_key=True)
     customer_no = db.Column(db.String(10))
@@ -98,7 +96,6 @@ class Billing(db.Model) :
     product_id = db.Column(db.String(100),db.ForeignKey('product.product_id'))
     product_name = db.Column(db.String(100))
     product_amount = db.Column(db.Integer)
-    product_quantity = db.Column(db.Integer)
     billing_amount = db.Column(db.Integer)
     total_quantity = db.Column(db.Integer)
     billing_date = db.Column(db.DateTime, default=datetime.utcnow)
@@ -197,11 +194,25 @@ def new_billing():
         customer_no = request.form.get('customer_no')
         customer_name = request.form.get('customer_name')
         customer_address = request.form.get('customer_address')
+        total_selling_count = request.form.get('total_selling_count')
+        total_selling_amount = request.form.get('total_selling_amount')
+        
+        customer = Customer.query.filter_by(customer_phone_number=customer_no).first()
+        if not customer:
+            customer = Customer(
+                customer_name=customer_name,
+                customer_phone_number=customer_no,
+                customer_address=customer_address)
+            db.session.add(customer)
+            db.session.commit()
         
         billing = Billing(
             customer_no=customer_no,
             customer_name=customer_name,
-            customer_address=customer_address
+            customer_address=customer_address,
+            total_quantity=total_selling_count,
+            billing_amount = total_selling_amount,
+            
         )
         db.session.add(billing)
         db.session.commit()
@@ -280,6 +291,16 @@ def remove_discount(id):
     product.product_selling_amount = product.backup_product_selling_amount
     db.session.commit()
     flash("Discount removed and original price restored!", "success")
+    return redirect(url_for('new_billing'))
+
+@app.route('/clear_product/<int:id>')
+def clear_product(id):
+    product = Product.query.get_or_404(id)
+    product.product_selling_amount = product.backup_product_selling_amount
+    product.status= 'active'
+    db.session.commit()
+    product_name = product.product_name
+    flash(f"Removed the {product_name} !", "success")
     return redirect(url_for('new_billing'))
 
 
