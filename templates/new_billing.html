@@ -376,24 +376,16 @@
                     {% for p in products %}
                     {% set total_count.value = total_count.value + 1 %}
 
-                    {% if p.discount == 0 and p.product_raw_amount and p.product_raw_amount > p.product_selling_amount %}
-                        {% set total_raw_amount.value = total_raw_amount.value + p.product_raw_amount %}
-                    {% else %}
-                        {% set total_raw_amount.value = total_raw_amount.value + p.product_selling_amount %}
-                    {% endif %}
-
                     {% set total_selling_amount.value = total_selling_amount.value + p.product_selling_amount %}
 
                     <tr>
                         <td><strong>ID:</strong> {{ p.id }}</td>
                         <td>{{ p.product_name }}</td>
                         <td>
-                            {% if p.discount == 0 and p.product_raw_amount and p.product_raw_amount > p.product_selling_amount %}
-                            <s style="color: red;">₹{{ p.product_raw_amount }}</s>
+                            {% if p.product_selling_amount != p.backup_product_selling_amount %}
+                            <s style="color: red;">₹{{ p.backup_product_selling_amount }}</s>
                             <span style="color: green; font-weight: bold; margin-left: 10px;">₹{{ p.product_selling_amount }}</span>
-                            <span style="font-size: 0.85em; color: gray; display: block;">
-                                ({{ (((p.product_raw_amount - p.product_selling_amount) / p.product_raw_amount) * 100) | int }}% OFF)
-                            </span>
+                             
                             {% else %}
                             ₹{{ p.product_selling_amount }}
                             {% if p.discount and p.discount > 0 %}
@@ -403,12 +395,10 @@
                         </td>
                         
                         <td>
-                            {% if p.discount == 0 and p.product_raw_amount and p.product_raw_amount > p.product_selling_amount %}
-                            <span style="color: green; font-weight: bold;"><a href="/discount_remove/{{ p.id }}">💵</a></span>
-                            {% elif p.discount and p.discount > 0 %}
+                            {% if p.product_selling_amount == p.backup_product_selling_amount %}
                             <a href="/discount_apply/{{ p.id }}">🏷️</a>
                             {% else %}
-                            <span style="color: #888;">No Discount</span>
+                                <span style="color: green; font-weight: bold;"><a href="/discount_remove/{{ p.id }}">💵</a></span>
                             {% endif %}
                         </td>
                     </tr>

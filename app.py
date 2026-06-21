@@ -53,14 +53,21 @@ class Product(db.Model) :
     product_id = db.Column(db.String(100))
     product_selling_amount = db.Column(db.Integer)
     product_raw_amount = db.Column(db.Integer)  
-    backup_product_selling_amount = db.Column(db.Integer, value=product_selling_amount)  # New field to store the original selling amount for discount restoration
-    backup_product_raw_amount = db.Column(db.Integer, value=product_raw_amount)  # New field to store the original raw amount for discount restoration
+    backup_product_selling_amount = db.Column(db.Integer, default=None)  # New field to store the original selling amount for discount restoration
+    backup_product_raw_amount = db.Column(db.Integer, default=None)  # New field to store the original raw amount for discount restoration
     discount = db.Column(db.Integer)
     product_location = db.Column(db.String(100))
     product_entry_date = db.Column(db.String(100))
     product_exit_date = db.Column(db.DateTime, default=None)
     Customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'), default=None)
     status = db.Column(db.String(20), default='active')  # active, sold, expired, etc.
+    def __init__(self, **kwargs):
+        super(Product, self).__init__(**kwargs)
+        # Automatically sync backups if they aren't explicitly provided
+        if self.backup_product_selling_amount is None:
+            self.backup_product_selling_amount = self.product_selling_amount
+        if self.backup_product_raw_amount is None:
+            self.backup_product_raw_amount = self.product_raw_amount
     
  
   
@@ -270,20 +277,9 @@ def apply_discount(id):
 @app.route('/discount_remove/<int:id>')
 def remove_discount(id):
     product = Product.query.get_or_404(id)
-    
-    if product.product_raw_amount is not None:
-        # Restore the original selling amount
-        product.product_selling_amount = product.product_raw_amount
-        
-        # Reset the raw amount and discount fields
-        product.product_raw_amount = None
-        product.discount = 0  # Reset discount to 0 since it's no longer applicable
-        
-        db.session.commit()
-        flash("Successfully restored original price!", "success")
-    else:
-        flash("No discount to remove or original price not found.", "warning")
-        
+    product.product_selling_amount = product.backup_product_selling_amount
+    db.session.commit()
+    flash("Discount removed and original price restored!", "success")
     return redirect(url_for('new_billing'))
 
 
