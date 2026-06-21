@@ -53,6 +53,8 @@ class Product(db.Model) :
     product_id = db.Column(db.String(100))
     product_selling_amount = db.Column(db.Integer)
     product_raw_amount = db.Column(db.Integer)  
+    backup_product_selling_amount = db.Column(db.Integer, value=product_selling_amount)  # New field to store the original selling amount for discount restoration
+    backup_product_raw_amount = db.Column(db.Integer, value=product_raw_amount)  # New field to store the original raw amount for discount restoration
     discount = db.Column(db.Integer)
     product_location = db.Column(db.String(100))
     product_entry_date = db.Column(db.String(100))
@@ -252,18 +254,11 @@ def apply_discount(id):
     product = Product.query.get_or_404(id)
     
     if product.discount and product.discount > 0:
-        # 1. Back up the current selling amount into raw_amount if it hasn't been done yet
-        product.product_raw_amount = product.product_selling_amount
-        
-        # 2. Calculate the discount value reduction
         discount_percentage = product.discount
         discount_value = (product.product_selling_amount * discount_percentage) / 100
         
         # 3. Reduce the selling amount value
         product.product_selling_amount = int(product.product_selling_amount - discount_value)
-        
-        # 4. Set discount field to 0 so the "Apply Discount" button hides/deactivates
-        product.discount = 0 
         
         db.session.commit()
         flash(f"Successfully reduced price by {discount_percentage}%!", "success")
@@ -272,23 +267,25 @@ def apply_discount(id):
         
     return redirect(url_for('new_billing'))
 
-@app.route('/discount_remove/<int:product_id>', methods=['POST'])
-def discount_remove(product_id):
-    product = Product.query.get_or_404(product_id)
+@app.route('/discount_remove/<int:id>')
+def remove_discount(id):
+    product = Product.query.get_or_404(id)
     
-    if product.product_raw_amount:
-        # Calculate percentage back out to restore the original 'discount available' percentage value 
-        restored_discount = round(((product.product_raw_amount - product.product_selling_amount) / product.product_raw_amount) * 100)
-        
-        # Reset original fields values metrics tracking
+    if product.product_raw_amount is not None:
+        # Restore the original selling amount
         product.product_selling_amount = product.product_raw_amount
-        product.discount = restored_discount
-        product.product_raw_amount = None # Clear structural configuration markers
+        
+        # Reset the raw amount and discount fields
+        product.product_raw_amount = None
+        product.discount = 0  # Reset discount to 0 since it's no longer applicable
         
         db.session.commit()
-        return jsonify({"success": True, "message": "Product values rolled back cleanly."})
+        flash("Successfully restored original price!", "success")
+    else:
+        flash("No discount to remove or original price not found.", "warning")
         
-    return jsonify({"success": False, "message": "No modification properties tracked on this row entity."}), 400
+    return redirect(url_for('new_billing'))
+
 
 # ==============================
 # Bulk Upload Route

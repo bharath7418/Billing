@@ -404,7 +404,7 @@
                         
                         <td>
                             {% if p.discount == 0 and p.product_raw_amount and p.product_raw_amount > p.product_selling_amount %}
-                            <span style="color: green; font-weight: bold;">💵 </span>
+                            <span style="color: green; font-weight: bold;"><a href="/discount_remove/{{ p.id }}">💵</a></span>
                             {% elif p.discount and p.discount > 0 %}
                             <a href="/discount_apply/{{ p.id }}">🏷️</a>
                             {% else %}
