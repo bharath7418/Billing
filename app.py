@@ -37,9 +37,16 @@ class User(UserMixin, db.Model):
     
 class ShopDealer(UserMixin,db.Model) :
     id = db.Column(db.Integer, primary_key=True)
-    shop_name = db.Column(db.String(150), unique=True, nullable=False)
+    shop_username = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(150), nullable=False)
-
+    shop_name = db.Column(db.String(150),nullable=False)
+    shop_title = db.Column(db.String(150),nullable=False)
+    shop_location = db.Column(db.String(150),nullable=False)
+    shop_phone_number = db.Column(db.String(10),nullable=False)
+    shop_gst_number = db.Column(db.String(15),default=None)
+    
+    
+    
 class Product(db.Model) :
     id = db.Column(db.Integer,primary_key=True)
     product_name = db.Column(db.String(100))
@@ -53,28 +60,7 @@ class Product(db.Model) :
     Customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'), default=None)
     status = db.Column(db.String(20), default='active')  # active, sold, expired, etc.
     
-    def apply_discount(self, discount_value, discount_type='percentage'):
-        """
-        Updates the discount and calculates the new product_selling_amount.
-        discount_type can be 'percentage' (automated) or 'manual' (flat rate deduction).
-        """
-        self.discount = discount_value
-        
-        if discount_type == 'percentage':
-            # Automated Percentage: e.g., 10% off raw amount
-            discount_amount = (self.product_raw_amount * discount_value) / 100
-            self.product_selling_amount = int(self.product_raw_amount - discount_amount)
-        elif discount_type == 'manual':
-            # Manual flat rate: e.g., Take $20 off raw amount
-            self.product_selling_amount = int(self.product_raw_amount - discount_value)
-            
-        # Ensure price doesn't drop below 0
-        if self.product_selling_amount < 0:
-            self.product_selling_amount = 0
-  
-  
-  
-  
+ 
   
 class SelledProduct(db.Model) :
     id = db.Column(db.Integer,primary_key=True)
@@ -130,14 +116,14 @@ def welcome():
 @app.route('/shop_login',methods=['GET','POST'])
 def shop_login():
     if request.method == 'POST':
-        shop_name = request.form.get('shop_name')
+        shop_username = request.form.get('shop_username')
         password = request.form.get('password')
-        shop_dealer = ShopDealer.query.filter_by(shop_name=shop_name).first()
+        shop_dealer = ShopDealer.query.filter_by(shop_username=shop_username).first()
         if shop_dealer and shop_dealer.password == password:
             login_user(shop_dealer)
             return redirect(url_for('shop_dashboard'))
         else:
-            flash('Invalid shop name or password', 'danger')
+            flash('Invalid shop username or password', 'danger')
     
     return render_template('shop_login.html')
 
@@ -155,7 +141,6 @@ def new_product():
         product_id = request.form.get('product_id')
         product_selling_amount = request.form.get('product_selling_amount')
         product_raw_amount = request.form.get('product_raw_amount')
-        product_percentage = request.form.get('product_percentage')
         discount = request.form.get('discount')
         status = request.form.get('status')
         product_location = request.form.get('product_location')
@@ -166,7 +151,6 @@ def new_product():
             product_id=product_id,
             product_selling_amount=product_selling_amount,
             product_raw_amount=product_raw_amount,
-            product_percentage=product_percentage,
             discount=discount,
             status=status,
             product_location=product_location,
@@ -178,7 +162,6 @@ def new_product():
         return redirect(url_for('shop_dashboard'))
 
     return render_template('new_product.html')
-
 
 @app.route('/search_contact/<customer_no>', methods=['GET'])
 @login_required
@@ -216,9 +199,7 @@ def new_billing():
         flash('Billing added successfully', 'success')
         return redirect(url_for('new_billing'))
         
-    return render_template(
-        'new_billing.html', 
-        bill=bill, 
+    return render_template('new_billing.html',bill=bill, 
         selled_products=selled_products, 
         products=products,
         customer_no='', 
@@ -266,31 +247,48 @@ def verify_id():
     flash(f"Product ID {product.id} verified and marked as scanned!", "success")
     return redirect(url_for('new_billing'))
 
-@app.route('/discount_apply', methods=['POST'])
-def discount_apply():
-    # Retrieve form data
-    prod_db_id = request.form.get('product_db_id')
-    discount_val = request.form.get('discount_value', type=int)
-    discount_type = request.form.get('discount_type') # 'percentage' or 'manual'
-
-    # Fetch the product from the database
-    product = Product.query.get_or_404(prod_db_id)
-
-    if discount_val is not None and discount_val >= 0:
-        try:
-            # Call our model's helper method
-            product.apply_discount(discount_val, discount_type)
-            db.session.commit()
-            flash(f"Discount applied successfully! New price: {product.product_selling_amount}", "success")
-        except Exception as e:
-            db.session.rollback()
-            flash("An error occurred while updating the price.", "danger")
+@app.route('/discount_apply/<int:id>')
+def apply_discount(id):
+    product = Product.query.get_or_404(id)
+    
+    if product.discount and product.discount > 0:
+        # 1. Back up the current selling amount into raw_amount if it hasn't been done yet
+        product.product_raw_amount = product.product_selling_amount
+        
+        # 2. Calculate the discount value reduction
+        discount_percentage = product.discount
+        discount_value = (product.product_selling_amount * discount_percentage) / 100
+        
+        # 3. Reduce the selling amount value
+        product.product_selling_amount = int(product.product_selling_amount - discount_value)
+        
+        # 4. Set discount field to 0 so the "Apply Discount" button hides/deactivates
+        product.discount = 0 
+        
+        db.session.commit()
+        flash(f"Successfully reduced price by {discount_percentage}%!", "success")
     else:
-        flash("Invalid discount value entered.", "warning")
+        flash("Discount already applied or invalid.", "warning")
+        
+    return redirect(url_for('new_billing'))
 
-    return redirect(url_for('dashboard')) # Change 'dashboard' to whatever your main view is
-
-
+@app.route('/discount_remove/<int:product_id>', methods=['POST'])
+def discount_remove(product_id):
+    product = Product.query.get_or_404(product_id)
+    
+    if product.product_raw_amount:
+        # Calculate percentage back out to restore the original 'discount available' percentage value 
+        restored_discount = round(((product.product_raw_amount - product.product_selling_amount) / product.product_raw_amount) * 100)
+        
+        # Reset original fields values metrics tracking
+        product.product_selling_amount = product.product_raw_amount
+        product.discount = restored_discount
+        product.product_raw_amount = None # Clear structural configuration markers
+        
+        db.session.commit()
+        return jsonify({"success": True, "message": "Product values rolled back cleanly."})
+        
+    return jsonify({"success": False, "message": "No modification properties tracked on this row entity."}), 400
 
 # ==============================
 # Bulk Upload Route
@@ -513,8 +511,8 @@ with app.app_context():
         admin_user = User(username='admin', password='admin')
         db.session.add(admin_user)
         db.session.commit()
-    if not ShopDealer.query.filter_by(shop_name='admin_shop').first():
-        admin_shop = ShopDealer(shop_name='admin_shop', password='admin')
+    if not ShopDealer.query.filter_by(shop_name='RAMAJAYAM').first():
+        admin_shop = ShopDealer(shop_name='RAMAJAYAM',shop_username='ramajayam',password='ram',shop_title='Tailors & Readymades',shop_location='Bypass Road, Pernamallur.\n Vandavasi Tk, Tiruvannamallai District - 604 503.',shop_phone_number='9364290146')
         db.session.add(admin_shop)
         db.session.commit()
 

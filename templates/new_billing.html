@@ -359,54 +359,117 @@
                 <strong>{{ selled_products|length }}</strong> total entries recorded for the day.
             </div>
 
-            {% for p in products %}
-            <table>
-                <tr>
-                    <td><strong>ID:</strong> {{ p.id }}</td>
-                    <td>{{ p.product_name }}</td>
-                    <td>₹{{ p.product_selling_amount }}</td>
-                    <form action="/discount_apply" method="POST" class="discount-form">
-                        <input type="hidden" name="product_db_id" value="{{ product.id }}">
+<table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Product Name</th>
+                        <th>Price Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set total_count = namespace(value=0) %}
+                    {% set total_raw_amount = namespace(value=0) %}
+                    {% set total_selling_amount = namespace(value=0) %}
 
-                        <div class="form-group">
-                            <label for="discount_type">Discount Method:</label>
-                            <select name="discount_type" id="discount_type" class="form-control">
-                                <option value="percentage">Automated Percentage (%)</option>
-                                <option value="manual">Manual Flat Amount ($)</option>
+                    {% for p in products %}
+                    {% set total_count.value = total_count.value + 1 %}
+
+                    {% if p.discount == 0 and p.product_raw_amount and p.product_raw_amount > p.product_selling_amount %}
+                        {% set total_raw_amount.value = total_raw_amount.value + p.product_raw_amount %}
+                    {% else %}
+                        {% set total_raw_amount.value = total_raw_amount.value + p.product_selling_amount %}
+                    {% endif %}
+
+                    {% set total_selling_amount.value = total_selling_amount.value + p.product_selling_amount %}
+
+                    <tr>
+                        <td><strong>ID:</strong> {{ p.id }}</td>
+                        <td>{{ p.product_name }}</td>
+                        <td>
+                            {% if p.discount == 0 and p.product_raw_amount and p.product_raw_amount > p.product_selling_amount %}
+                            <s style="color: red;">₹{{ p.product_raw_amount }}</s>
+                            <span style="color: green; font-weight: bold; margin-left: 10px;">₹{{ p.product_selling_amount }}</span>
+                            <span style="font-size: 0.85em; color: gray; display: block;">
+                                ({{ (((p.product_raw_amount - p.product_selling_amount) / p.product_raw_amount) * 100) | int }}% OFF)
+                            </span>
+                            {% else %}
+                            ₹{{ p.product_selling_amount }}
+                            {% if p.discount and p.discount > 0 %}
+                            <span style="color: blue; font-size: 0.85em;">({{ p.discount }}% available)</span>
+                            {% endif %}
+                            {% endif %}
+                        </td>
+                        
+                        <td>
+                            {% if p.discount == 0 and p.product_raw_amount and p.product_raw_amount > p.product_selling_amount %}
+                            <span style="color: green; font-weight: bold;">💵 </span>
+                            {% elif p.discount and p.discount > 0 %}
+                            <a href="/discount_apply/{{ p.id }}">🏷️</a>
+                            {% else %}
+                            <span style="color: #888;">No Discount</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+                <tfoot style="background-color: #f9f9f9; font-weight: bold; border-top: 2px solid #ccc;">
+                    <tr>
+                        <td>Total Products: {{ total_count.value }}</td>
+                        <td>Overall Summary:</td>
+                        <td>
+                            <div id="summary-price-container" data-base-total="{{ total_selling_amount.value }}">
+                                <s id="total-crossed" style="color: red; display: none;">₹{{ total_selling_amount.value }}</s>
+                                <span id="final-total-display" style="color: black;">₹{{ total_selling_amount.value }}</span>
+                                <span id="manual-text-label" style="display: none; color: darkgreen; font-size: 0.85em; margin-top: 4px;"></span>
+                            </div>
+                        </td>
+                        <td>
+                            <span style="color: #555;">Final Summary</span>
+                        </td>
+                    </tr>
+
+                    <tr style="background-color: #f1f3f5; border-top: 1px dashed #bbb;">
+                        <td colspan="2" style="text-align: right; vertical-align: middle;">
+                            Add Optional Discount?
+                            <select id="discount-toggle" onchange="toggleDiscountInput()" style="padding: 4px; margin-left: 10px;">
+                                <option value="no">No</option>
+                                <option value="yes">Yes</option>
                             </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="discount_value">Discount Value:</label>
-                            <input type="number" name="discount_value" id="discount_value" class="form-control"
-                                placeholder="e.g. 10" required min="0">
-                        </div>
-
-                        <button type="submit" class="btn btn-primary">Apply Discount</button>
-                    </form>
-                    <td><a href="/discount_apply">Apply Discount</a></td>
-                </tr>
+                        </td>
+                        <td colspan="2" style="vertical-align: middle;">
+                            <div id="input-container" style="display: none; align-items: center; gap: 8px;">
+                                <input type="number" id="manual-percentage" min="1" max="100" placeholder="Enter %"
+                                    onkeyup="calculateManualDiscount()" oninput="calculateManualDiscount()"
+                                    style="width: 80px; padding: 4px 6px; border: 1px solid #aaa; border-radius: 4px;">
+                                <span style="font-size: 0.9em; font-weight: normal; color: #666;">% reduction on total selling amount</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tfoot>
             </table>
-            {% endfor %}
-            <form method="POST" action="{{ url_for('new_billing') }}">
-                <div>
-                    <label for="customer_phone_number">Customer Phone Number:</label>
-                    <input type="text" id="customer_phone_number" name="customer_phone_number" required>
-                </div>
 
-                <div>
-                    <label for="customer_name">Customer Name:</label>
-                    <input type="text" id="customer_name" name="customer_name" required>
-                </div>
-
-                <div>
-                    <label for="customer_address">Customer Address:</label>
-                    <textarea id="customer_address" name="customer_address" required></textarea>
-                </div>
-
-                <button type="submit">Submit Billing</button>
+            <form method="POST" action="{{ url_for('new_billing') }}" style="margin-top: 20px;">
+                <table style="border: 1px solid var(--border-strong); background: var(--bg-card); width: 100%;">
+                    <tr>
+                        <td style="padding: 12px; border: none;">
+                            <label for="customer_phone_number">Customer Phone Number</label>
+                            <input type="text" id="customer_phone_number" name="customer_phone_number" class="form-control" placeholder="Enter phone..." required>
+                        </td>
+                        <td style="padding: 12px; border: none;">
+                            <label for="customer_name">Customer Name</label>
+                            <input type="text" id="customer_name" name="customer_name" class="form-control" placeholder="Customer name..." required>
+                        </td>
+                        <td style="padding: 12px; border: none;">
+                            <label for="customer_address">Customer Address</label>
+                            <textarea id="customer_address" name="customer_address" class="form-control" rows="1" placeholder="Delivery destination address..." style="resize: vertical;" required></textarea>
+                        </td>
+                    </tr>
+                </table>
+                <button type="submit" class="btn-submit" style="margin-top: 12px;">Submit Billing</button>
             </form>
-            </div>
         </section>
     </main>
 
@@ -513,18 +576,54 @@
                     })
                     .catch(error => {
                         console.log("Lookup notification:", error.message);
-                        // Optional: clear inputs if customer isn't found to prepare for manual typing
-                        // document.getElementById('customer_name').value = '';
-                        // document.getElementById('customer_address').value = '';
+
                     });
             }
         });
+
+        function toggleDiscountInput() {
+            const selector = document.getElementById('discount-toggle').value;
+            const inputContainer = document.getElementById('input-container');
+            const percentInput = document.getElementById('manual-percentage');
+
+            if (selector === 'yes') {
+                inputContainer.style.display = 'flex';
+                percentInput.focus();
+            } else {
+                inputContainer.style.display = 'none';
+                percentInput.value = '';
+                calculateManualDiscount();
+            }
+        }
+
+        function calculateManualDiscount() {
+            const container = document.getElementById('summary-price-container');
+            const baseTotal = parseFloat(container.getAttribute('data-base-total'));
+            const percentValue = parseFloat(document.getElementById('manual-percentage').value);
+
+            const crossedElement = document.getElementById('total-crossed');
+            const displayElement = document.getElementById('final-total-display');
+            const labelElement = document.getElementById('manual-text-label');
+
+            if (isNaN(percentValue) || percentValue <= 0 || percentValue > 100) {
+                crossedElement.style.display = 'none';
+                displayElement.style.color = 'black';
+                displayElement.innerText = '₹' + baseTotal;
+                labelElement.style.display = 'none';
+                return;
+            }
+
+            const discountAmount = (baseTotal * percentValue) / 100;
+            const reductionTotal = Math.round(baseTotal - discountAmount);
+
+            crossedElement.style.display = 'inline';
+            displayElement.style.color = 'green';
+            displayElement.innerText = '₹' + reductionTotal;
+
+            labelElement.style.display = 'block';
+            labelElement.innerText = `(Manual ${percentValue}% Reduction Applied)`;
+        }
     </script>
-
-
-
-
-
 
 </body>
 
