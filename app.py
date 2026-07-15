@@ -5,7 +5,7 @@ import os
 from datetime import date, datetime
 from flask_migrate import Migrate
 import pandas as pd
-from sympy import prod
+from sympy import prod, product
 
 
 app  = Flask(__name__)
@@ -45,21 +45,19 @@ class ShopDealer(UserMixin,db.Model) :
     shop_phone_number = db.Column(db.String(10),nullable=False)
     shop_gst_number = db.Column(db.String(15),default=None)
     
-    
-    
 class Product(db.Model) :
     id = db.Column(db.Integer,primary_key=True)
     product_name = db.Column(db.String(100))
     product_id = db.Column(db.String(100))
     product_selling_amount = db.Column(db.Integer)
-    product_raw_amount = db.Column(db.Integer)  
+    product_raw_amount = db.Column(db.Integer) 
     backup_product_selling_amount = db.Column(db.Integer, default=None)  # New field to store the original selling amount for discount restoration
     backup_product_raw_amount = db.Column(db.Integer, default=None)  # New field to store the original raw amount for discount restoration
     discount = db.Column(db.Integer)
     product_location = db.Column(db.String(100))
     product_entry_date = db.Column(db.String(100))
     product_exit_date = db.Column(db.DateTime, default=None)
-    Customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'), default=None)
+    customer_phone_number = db.Column(db.String(10), db.ForeignKey('customer.customer_phone_number'), default=None)
     status = db.Column(db.String(20), default='active')  # active, sold, expired, etc.
     def __init__(self, **kwargs):
         super(Product, self).__init__(**kwargs)
@@ -73,9 +71,9 @@ class Product(db.Model) :
   
 class SelledProduct(db.Model) :
     id = db.Column(db.Integer,primary_key=True)
+    billing_id = db.Column(db.Integer, db.ForeignKey('billing.id'), nullable=True)
     selled_product_name = db.Column(db.String(100))
     selled_product_id = db.Column(db.String(100))
-    selled_customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'), nullable=True)
     selled_product_amount = db.Column(db.Integer)
     scanned_at = db.Column(db.DateTime, default=datetime.utcnow)
     
@@ -83,7 +81,6 @@ class SelledProduct(db.Model) :
 class Customer(db.Model) :
     id = db.Column(db.Integer,primary_key=True)
     customer_name = db.Column(db.String(100))
-    customer_id = db.Column(db.String(100))
     customer_phone_number = db.Column(db.String(10))
     customer_address = db.Column(db.String(200))
     __tablename__ = 'customer'
@@ -93,13 +90,12 @@ class Billing(db.Model) :
     id = db.Column(db.Integer,primary_key=True)
     customer_no = db.Column(db.String(10))
     customer_name = db.Column(db.String(100))
-    product_id = db.Column(db.String(100),db.ForeignKey('product.product_id'))
-    product_name = db.Column(db.String(100))
-    product_amount = db.Column(db.Integer)
+    customer_address = db.Column(db.String(100), nullable=True)
     billing_amount = db.Column(db.Integer)
     total_quantity = db.Column(db.Integer)
     billing_date = db.Column(db.DateTime, default=datetime.utcnow)
-    
+    billing_products = db.relationship('SelledProduct', backref='billing', lazy=True)
+
 @login_manager.user_loader
 def load_user(user_id):
     # Flask-Login sessions store IDs as strings, so we convert to int
@@ -130,9 +126,7 @@ def shop_login():
             return redirect(url_for('shop_dashboard'))
         else:
             flash('Invalid shop username or password', 'danger')
-    
     return render_template('shop_login.html')
-
 
 @app.route('/shop_dashboard')
 @login_required
@@ -151,7 +145,6 @@ def new_product():
         status = request.form.get('status')
         product_location = request.form.get('product_location')
         product_entry_date = datetime.utcnow()
-
         product = Product(
             product_name=product_name,
             product_id=product_id,
@@ -190,7 +183,6 @@ def new_billing():
     products = Product.query.filter_by(status='scanned').all()
     
     if request.method == 'POST':
-        # Extract values from form submission
         customer_no = request.form.get('customer_no')
         customer_name = request.form.get('customer_name')
         customer_address = request.form.get('customer_address')
@@ -209,14 +201,24 @@ def new_billing():
         billing = Billing(
             customer_no=customer_no,
             customer_name=customer_name,
-            customer_address=customer_address,
+            customer_address = customer_address,
             total_quantity=total_selling_count,
             billing_amount = total_selling_amount,
-            
         )
+        
         db.session.add(billing)
         db.session.commit()
-        flash('Billing added successfully', 'success')
+        
+        # if product_id and product_name:
+        #     selled = SelledProduct(
+        #         billing_id=billing.id,                      # Gotten from step 3
+        #         selled_product_id=product_id,
+        #         selled_product_name=product_name,
+        #         selled_product_amount=int(product_amount) if product_amount else 0
+        #     )
+        # db.session.add(selled)
+        # db.session.commit()
+        # flash('Billing added successfully', 'success')
         return redirect(url_for('new_billing'))
         
     return render_template('new_billing.html',bill=bill, 
@@ -259,7 +261,6 @@ def verify_id():
     add_product = SelledProduct(
         selled_product_name=product.product_name,
         selled_product_id=product.id,
-        selled_customer_id=product.Customer_id
     )
     db.session.add(add_product)
     db.session.commit()
@@ -296,6 +297,9 @@ def remove_discount(id):
 @app.route('/clear_product/<int:id>')
 def clear_product(id):
     product = Product.query.get_or_404(id)
+    selled = SelledProduct.query.filter_by(selled_product_id=product.id).first()
+    if selled:
+        db.session.delete(selled)
     product.product_selling_amount = product.backup_product_selling_amount
     product.status= 'active'
     db.session.commit()
@@ -475,16 +479,10 @@ def upload_clients():
                         continue
                     seen_in_file.add(client_id_val)
                         
-                    # 2. Check database using your model's real property name: 'customer_id'
-                    existing = Customer.query.filter_by(customer_id=client_id_val).first()
-                    if existing:
-                        duplicate_errors.append(f"Row {index + 2}: Client ID '{client_id_val}' already exists in the system. Skipped.")
-                        continue
                     
                     # 3. Map sheet values to your exact model keywords
                     client = Customer(
                         customer_name=client_name_val,
-                        customer_id=client_id_val,
                         customer_phone_number=client_phone_number_val,
                         customer_address=client_address_val
                     )

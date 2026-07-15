@@ -351,6 +351,7 @@
                 <h2 class="panel-title" style="margin-bottom: 0;">Today's Verification Entries</h2>
                 <span id="liveCounter"
                     style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); background: #e2e8f0; padding: 2px 8px; border-radius: 10px;">
+                    {{ bill.id }} Total
                     {{ selled_products|length }} Active
                 </span>
             </div>
@@ -476,8 +477,6 @@
                 <input type="hidden" name="total_selling_count" value="{{ total_count.value }}">
                 <input type="hidden" name="total_selling_amount" value="{{ total_selling_amount.value }}">
 
-
-
                 <button type="submit" class="btn-submit" style="margin-top: 12px;">Submit Billing</button>
             </form>
         </section>
@@ -582,6 +581,7 @@
                             // Autofill fields cleanly with database response values
                             document.getElementById('customer_name').value = data.customer_name;
                             document.getElementById('customer_address').value = data.customer_address;
+                            document.getElementById('customer_phone_number').value = data.customer_no;
                         }
                     })
                     .catch(error => {
