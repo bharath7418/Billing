@@ -66,9 +66,7 @@ class Product(db.Model) :
             self.backup_product_selling_amount = self.product_selling_amount
         if self.backup_product_raw_amount is None:
             self.backup_product_raw_amount = self.product_raw_amount
-    
- 
-  
+   
 class SelledProduct(db.Model) :
     id = db.Column(db.Integer,primary_key=True)
     billing_id = db.Column(db.Integer, db.ForeignKey('billing.id'), nullable=True)
@@ -183,7 +181,7 @@ def new_billing():
     products = Product.query.filter_by(status='scanned').all()
     
     if request.method == 'POST':
-        customer_no = request.form.get('customer_no')
+        customer_no = request.form.get('customer_phone_number')
         customer_name = request.form.get('customer_name')
         customer_address = request.form.get('customer_address')
         total_selling_count = request.form.get('total_selling_count')
@@ -203,23 +201,25 @@ def new_billing():
             customer_name=customer_name,
             customer_address = customer_address,
             total_quantity=total_selling_count,
-            billing_amount = total_selling_amount,
+            billing_amount = total_selling_amount
         )
         
         db.session.add(billing)
         db.session.commit()
+        for product in products:
+            product.status = 'sold'
+            product.product_exit_date = datetime.utcnow()
+            product.customer_phone_number = customer_no
+        db.session.commit()
         
-        # if product_id and product_name:
-        #     selled = SelledProduct(
-        #         billing_id=billing.id,                      # Gotten from step 3
-        #         selled_product_id=product_id,
-        #         selled_product_name=product_name,
-        #         selled_product_amount=int(product_amount) if product_amount else 0
-        #     )
-        # db.session.add(selled)
-        # db.session.commit()
-        # flash('Billing added successfully', 'success')
-        return redirect(url_for('new_billing'))
+        
+        for selled_product in selled_products:
+            selled_product.billing_id = billing.id
+            selled_product.selled_product_amount = Product.query.filter_by(id=selled_product.selled_product_id).first().product_selling_amount
+        db.session.commit()
+        
+        
+        return redirect(url_for('bill_show_page', billing_id=billing.id))
         
     return render_template('new_billing.html',bill=bill, 
         selled_products=selled_products, 
@@ -228,6 +228,14 @@ def new_billing():
         customer_name='', 
         customer_address=''
     )
+
+@app.route('/bill_show_page/<int:billing_id>')
+def bill_show_page(billing_id):
+    billing = Billing.query.get_or_404(billing_id)
+    selled = SelledProduct.query.all()
+    shop = ShopDealer.query.all()
+    return render_template('bill_show_page.html', billing=billing,selled=selled,shop=shop)
+
 
 @app.route('/customer_page')
 @login_required

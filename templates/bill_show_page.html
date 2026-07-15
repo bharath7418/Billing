@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billing Invoice</title>
+    <style>
+        :root {
+            --primary-color: #333;
+            --border-color: #e0e0e0;
+            --bg-color: #f9f9f9;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Action Panel for Print Button */
+        .action-panel {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 15px;
+        }
+
+        .print-btn {
+            background-color: #111111;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .print-btn:hover {
+            background-color: #333333;
+        }
+
+        /* Receipt Card Styling */
+        .receipt-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+            box-sizing: border-box;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        /* Header Section */
+        .shop-header {
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        .shop-name {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 0 0 5px 0;
+            text-transform: uppercase;
+        }
+
+        .shop-title {
+            font-size: 14px;
+            color: #666;
+            margin: 0 0 10px 0;
+        }
+
+        .shop-details {
+            font-size: 12px;
+            color: #777;
+            margin: 2px 0;
+        }
+
+        /* Meta / Invoice Info Section */
+        .invoice-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 25px;
+            color: #555;
+        }
+
+        .meta-group p {
+            margin: 4px 0;
+        }
+
+        .invoice-id {
+            font-weight: 700;
+            color: #111;
+        }
+
+        /* Table Styling for Items */
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            margin-bottom: 25px;
+        }
+
+        .items-table th {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #888;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .items-table td {
+            padding: 12px 0;
+            font-size: 14px;
+            border-bottom: 1px solid #f1f1f1;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        /* Total Section */
+        .total-section {
+            border-top: 2px solid var(--primary-color);
+            padding-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .total-label {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .total-amount {
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        /* Footer */
+        .receipt-footer {
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            border-top: 1px dashed var(--border-color);
+            padding-top: 20px;
+        }
+
+        /* Print Media Queries - Hides interactive UI and optimizes for paper/PDF */
+        @media print {
+            body {
+                background-color: #ffffff;
+                padding: 0;
+            }
+            .action-panel {
+                display: none; /* Hides print button while printing */
+            }
+            .receipt-card {
+                border: none;
+                box-shadow: none;
+                padding: 0;
+                width: 100%;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="action-panel">
+        <button class="print-btn" onclick="window.print()">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
+                <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2H5zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1z"/>
+            </svg>
+            Print Bill
+        </button>
+    </div>
+
+    <div class="receipt-card">
+        
+        <header class="shop-header">
+            {% for shop in shop %}
+            <h1 class="shop-name">{{ shop.shop_name }}</h1>
+            <p class="shop-title">{{ shop.shop_title }}</p>
+            <p class="shop-details">{{ shop.shop_location }}</p>
+            <p class="shop-details">Phone: {{ shop.shop_phone_number }}</p>
+            {% endfor %}
+        </header>
+
+        <div class="invoice-meta">
+            <div class="meta-group">
+                <p class="invoice-id">Invoice: #{{ billing.id }}</p>
+            </div>
+            <div class="meta-group text-right">
+                <p>Date: {{ billing.billing_date }}</p>
+                <p>Time: {{ billing.billing_time }}</p>
+            </div>
+        </div>
+
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th>Product ID</th>
+                    <th class="text-right">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for selled in selled %}
+                {% if selled.billing_id == billing.id %}
+                <tr>
+                    <td>{{ selled.selled_product_id }} {{ selled.selled_product_name }}</td>
+                    <td class="text-right">${{ "%.2f"|format(selled.selled_product_amount|float) }}</td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="total-section">
+            <span class="total-label">Total Amount</span>
+            <span class="total-amount">${{ "%.2f"|format(billing.billing_amount|float) }}</span>
+        </div>
+
+        <footer class="receipt-footer">
+            Thank you for your visit!
+        </footer>
+    </div>
+
+</body>
+</html>
