@@ -326,6 +326,7 @@
                 {% endif %}
                 {% endwith %}
 
+                
                 <form id="verificationForm" action="/verify_id" method="post">
                     <div class="scanner-viewport-wrapper" id="scannerWrapper">
                         <div id="qr-reader"></div>
@@ -347,6 +348,7 @@
         </aside>
 
         <section class="right-column">
+            <h1>{{ next_bill_no }} hi</h1>
             <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
                 <h2 class="panel-title" style="margin-bottom: 0;">Today's Verification Entries</h2>
                 <span id="liveCounter"

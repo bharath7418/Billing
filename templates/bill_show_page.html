@@ -231,7 +231,7 @@
                 {% if selled.billing_id == billing.id %}
                 <tr>
                     <td>{{ selled.selled_product_id }} {{ selled.selled_product_name }}</td>
-                    <td class="text-right">${{ "%.2f"|format(selled.selled_product_amount|float) }}</td>
+                    <td class="text-right">{{ "%.2f"|format(selled.selled_product_amount|float) }}</td>
                 </tr>
                 {% endif %}
                 {% endfor %}
@@ -247,6 +247,8 @@
             Thank you for your visit!
         </footer>
     </div>
+
+    <a href="/shop_dashboard">complete</a>
 
 </body>
 </html>

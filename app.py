@@ -177,6 +177,9 @@ def search_contact(customer_no):
 @login_required
 def new_billing():
     bill = Billing.query.all()
+    last_bill = Billing.query.order_by(Billing.id.desc()).first()
+    # If bills exist, add 1. If the table is empty, start at 1.
+    next_bill_no = (last_bill.id + 1) if last_bill else 1
     selled_products = SelledProduct.query.order_by(SelledProduct.scanned_at.desc()).all()
     products = Product.query.filter_by(status='scanned').all()
     
@@ -206,6 +209,16 @@ def new_billing():
         
         db.session.add(billing)
         db.session.commit()
+        
+        now_selled = Product.query.filter_by(status='scanned').all()
+        
+        for now in now_selled:
+            selled_product = SelledProduct.query.filter_by(selled_product_id=now.id).first()
+            if selled_product:
+                selled_product.billing_id = billing.id
+                selled_product.selled_product_amount = now.product_selling_amount
+        db.session.commit()
+        
         for product in products:
             product.status = 'sold'
             product.product_exit_date = datetime.utcnow()
@@ -213,26 +226,21 @@ def new_billing():
         db.session.commit()
         
         
-        for selled_product in selled_products:
-            selled_product.billing_id = billing.id
-            selled_product.selled_product_amount = Product.query.filter_by(id=selled_product.selled_product_id).first().product_selling_amount
-        db.session.commit()
+        return redirect(url_for('bill_show_page', billing_id=next_bill_no))
         
-        
-        return redirect(url_for('bill_show_page', billing_id=billing.id))
-        
-    return render_template('new_billing.html',bill=bill, 
+    return render_template('new_billing.html',
         selled_products=selled_products, 
         products=products,
         customer_no='', 
         customer_name='', 
-        customer_address=''
+        customer_address='',
+        next_bill_no=next_bill_no
     )
 
 @app.route('/bill_show_page/<int:billing_id>')
 def bill_show_page(billing_id):
     billing = Billing.query.get_or_404(billing_id)
-    selled = SelledProduct.query.all()
+    selled = SelledProduct.query.filter_by(billing_id=billing_id)
     shop = ShopDealer.query.all()
     return render_template('bill_show_page.html', billing=billing,selled=selled,shop=shop)
 
