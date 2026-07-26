@@ -6,6 +6,7 @@ from datetime import date, datetime
 from flask_migrate import Migrate
 import pandas as pd
 from sympy import prod, product
+import requests
 
 
 app  = Flask(__name__)
@@ -210,6 +211,7 @@ def new_billing():
         db.session.add(billing)
         db.session.commit()
         
+        
         now_selled = Product.query.filter_by(status='scanned').all()
         
         for now in now_selled:
@@ -224,6 +226,12 @@ def new_billing():
             product.product_exit_date = datetime.utcnow()
             product.customer_phone_number = customer_no
         db.session.commit()
+        
+        send_whatsapp_bill(
+            customer_no,
+            customer_name,
+            billing
+        )
         
         
         return redirect(url_for('bill_show_page', billing_id=next_bill_no))
@@ -244,6 +252,16 @@ def bill_show_page(billing_id):
     shop = ShopDealer.query.all()
     return render_template('bill_show_page.html', billing=billing,selled=selled,shop=shop)
 
+@app.route('/whatsapp_bill/<int:billing_id>')
+def whatsapp_bill(billing_id):
+    billing = Billing.query.get_or_404(billing_id)
+    send_whatsapp_bill(
+        billing.customer_no,
+        billing.customer_name,
+        billing
+    )
+    flash("WhatsApp bill sent successfully!", "success")
+    return redirect(url_for('bill_show_page', billing_id=billing.id))
 
 @app.route('/customer_page')
 @login_required
@@ -543,6 +561,32 @@ with app.app_context():
         admin_shop = ShopDealer(shop_name='RAMAJAYAM',shop_username='ramajayam',password='ram',shop_title='Tailors & Readymades',shop_location='Bypass Road, Pernamallur.\n Vandavasi Tk, Tiruvannamallai District - 604 503.',shop_phone_number='9364290146')
         db.session.add(admin_shop)
         db.session.commit()
+
+
+def send_whatsapp_bill(phone, customer_name, billing):
+    webhook_url = "https://YOUR-N8N-DOMAIN/webhook/send-bill"
+
+    products = []
+
+    for item in billing.billing_products:
+        products.append({
+            "name": item.selled_product_name,
+            "price": item.selled_product_amount
+        })
+
+    payload = {
+        "phone": phone,
+        "customer_name": customer_name,
+        "bill_no": billing.id,
+        "total_quantity": billing.total_quantity,
+        "total_amount": billing.billing_amount,
+        "products": products
+    }
+
+    try:
+        requests.post(webhook_url, json=payload)
+    except Exception as e:
+        print(e)
 
 
 if __name__ == '__main__':
