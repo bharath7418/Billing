@@ -91,10 +91,19 @@ class Billing(db.Model) :
     customer_name = db.Column(db.String(100))
     customer_address = db.Column(db.String(100), nullable=True)
     billing_amount = db.Column(db.Integer)
+    applies_discount = db.Column(db.Integer, default=0)  # New field to indicate if a discount was applied
+    applies_discount_amount = db.Column(db.Integer, default=0)
     total_quantity = db.Column(db.Integer)
     billing_date = db.Column(db.DateTime, default=datetime.utcnow)
     billing_products = db.relationship('SelledProduct', backref='billing', lazy=True)
-
+    def __init__(self, **kwargs):
+        super(Billing, self).__init__(**kwargs)
+        # Automatically sync backups if they aren't explicitly provided
+        if self.applies_discount == 0 :
+            self.applies_discount_amount = self.billing_amount
+        else :
+            self.applies_discount_amount = self.billing_amount - (self.billing_amount * self.applies_discount / 100)
+                    
 @login_manager.user_loader
 def load_user(user_id):
     # Flask-Login sessions store IDs as strings, so we convert to int
@@ -178,6 +187,7 @@ def search_contact(customer_no):
 @login_required
 def new_billing():
     bill = Billing.query.all()
+    products = Product.query.all()
     last_bill = Billing.query.order_by(Billing.id.desc()).first()
     # If bills exist, add 1. If the table is empty, start at 1.
     next_bill_no = (last_bill.id + 1) if last_bill else 1
@@ -250,7 +260,8 @@ def bill_show_page(billing_id):
     billing = Billing.query.get_or_404(billing_id)
     selled = SelledProduct.query.filter_by(billing_id=billing_id)
     shop = ShopDealer.query.all()
-    return render_template('bill_show_page.html', billing=billing,selled=selled,shop=shop)
+    products = Product.query.all()
+    return render_template('bill_show_page.html', billing=billing,selled=selled,shop=shop,products=products)
 
 @app.route('/whatsapp_bill/<int:billing_id>')
 def whatsapp_bill(billing_id):

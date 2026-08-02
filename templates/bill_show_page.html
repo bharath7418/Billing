@@ -227,16 +227,9 @@
             </thead>
             <tbody>
                 {% for selled in selled %}
-                {% if selled.billing_id == billing.id %}
                 <tr>
-                    <td>{{ selled.selled_product_id }} {{ selled.selled_product_name }}</td>
-                    {% if selled.selled_product_amount != selled.backup_product_amount %}
-                    <td class="text-right"> {{ "%.2f"|format(selled.selled_product_amount|float) }}</td>
-                    {% else %}
                     <td class="text-right">{{ "%.2f"|format(selled.backup_product_amount|float) }}</td>
-                    {% endif %}
                 </tr>
-                {% endif %}
                 {% endfor %}
             </tbody>
         </table>
