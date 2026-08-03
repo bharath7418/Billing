@@ -218,35 +218,28 @@
             </div>
         </div>
 
-        <table class="items-table">
+
+        <table>
             <thead>
-                <tr>
-                    <th>Product ID</th>
-                    <th class="text-right">Amount</th>
-                </tr>
+        <tr>Product Name</tr>
+                <tr>Product Amount</tr>
             </thead>
             <tbody>
                 {% for selled in selled %}
                 <tr>
-                    <td class="text-right">{{ "%.2f"|format(selled.backup_product_amount|float) }}</td>
+                    {% if   %}{% endif %}
+                    <td>{{ selled.selled_product_name }}</td> <td>{{ selled.selled_product_amount }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        {{ billing.billing_amount }} <br>
+        {{ billing.applies_discount }} <br>
+        {{ billing.applies_discount_amount }}
 
-        <div class="total-section">
-            <span class="total-label">Total Amount</span>
-            <span class="total-amount">${{ "%.2f"|format(billing.billing_amount|float) }}</span>
-            
-        </div>
-
-        <footer class="receipt-footer">
-            Thank you for your visit!
-        </footer>
-    </div>
 
     <a href="/shop_dashboard">complete</a>
     <address> <a href="/whatsapp_bill/{{ billing.id }}">Send WhatsApp Bill</a></address>
 
-</body>
-</html>
+    </body>
+</html> 

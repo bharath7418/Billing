@@ -48,6 +48,7 @@ class ShopDealer(UserMixin,db.Model) :
     
 class Product(db.Model) :
     id = db.Column(db.Integer,primary_key=True)
+    billing_id = db.Column(db.Integer, db.ForeignKey('billing.id'), nullable=True,default=0)
     product_name = db.Column(db.String(100))
     product_id = db.Column(db.String(100))
     product_selling_amount = db.Column(db.Integer)
@@ -96,14 +97,7 @@ class Billing(db.Model) :
     total_quantity = db.Column(db.Integer)
     billing_date = db.Column(db.DateTime, default=datetime.utcnow)
     billing_products = db.relationship('SelledProduct', backref='billing', lazy=True)
-    def __init__(self, **kwargs):
-        super(Billing, self).__init__(**kwargs)
-        # Automatically sync backups if they aren't explicitly provided
-        if self.applies_discount == 0 :
-            self.applies_discount_amount = self.billing_amount
-        else :
-            self.applies_discount_amount = self.billing_amount - (self.billing_amount * self.applies_discount / 100)
-                    
+              
 @login_manager.user_loader
 def load_user(user_id):
     # Flask-Login sessions store IDs as strings, so we convert to int
@@ -200,6 +194,7 @@ def new_billing():
         customer_address = request.form.get('customer_address')
         total_selling_count = request.form.get('total_selling_count')
         total_selling_amount = request.form.get('total_selling_amount')
+        manual_percentage = request.form.get('manual-percentage')
         
         customer = Customer.query.filter_by(customer_phone_number=customer_no).first()
         if not customer:
@@ -215,7 +210,10 @@ def new_billing():
             customer_name=customer_name,
             customer_address = customer_address,
             total_quantity=total_selling_count,
-            billing_amount = total_selling_amount
+            billing_amount = total_selling_amount,
+            applies_discount = manual_percentage,
+            applies_discount_amount = int(total_selling_amount) - (int(total_selling_amount) * int(manual_percentage) / 100) if manual_percentage else int(total_selling_amount)
+            
         )
         
         db.session.add(billing)
@@ -235,6 +233,7 @@ def new_billing():
             product.status = 'sold'
             product.product_exit_date = datetime.utcnow()
             product.customer_phone_number = customer_no
+            product.billing_id = billing.id
         db.session.commit()
         
         send_whatsapp_bill(
@@ -260,7 +259,7 @@ def bill_show_page(billing_id):
     billing = Billing.query.get_or_404(billing_id)
     selled = SelledProduct.query.filter_by(billing_id=billing_id)
     shop = ShopDealer.query.all()
-    products = Product.query.all()
+    products = Product.query.filter_by(billing_id=billing_id)
     return render_template('bill_show_page.html', billing=billing,selled=selled,shop=shop,products=products)
 
 @app.route('/whatsapp_bill/<int:billing_id>')
@@ -268,8 +267,7 @@ def whatsapp_bill(billing_id):
     billing = Billing.query.get_or_404(billing_id)
     send_whatsapp_bill(
         billing.customer_no,
-        billing.customer_name,
-        billing
+        billing.customer_name
     )
     flash("WhatsApp bill sent successfully!", "success")
     return redirect(url_for('bill_show_page', billing_id=billing.id))
