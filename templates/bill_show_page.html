@@ -3,243 +3,358 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Billing Invoice</title>
+    <title>Invoice #{{ billing.id }}</title>
     <style>
         :root {
-            --primary-color: #333;
-            --border-color: #e0e0e0;
-            --bg-color: #f9f9f9;
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --primary-light: #eef2ff;
+            --whatsapp: #25d366;
+            --whatsapp-hover: #1da851;
+            --whatsapp-light: #f0fdf4;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --bg-body: #f3f4f6;
+            --bg-card: #ffffff;
+            --strike: #ef4444;
+            --success: #16a34a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
         body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--primary-color);
-            margin: 0;
-            padding: 20px;
+            background-color: var(--bg-body);
+            color: var(--text-main);
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
+            min-height: 100vh;
+            padding: 16px;
         }
 
-        /* Action Panel for Print Button */
-        .action-panel {
+        .container {
             width: 100%;
-            max-width: 500px;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        /* Action Panel */
+        .action-panel {
             display: flex;
-            justify-content: flex-end;
-            margin-bottom: 15px;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            flex: 1;
         }
 
         .print-btn {
-            background-color: #111111;
+            background-color: var(--primary);
             color: #ffffff;
-            border: none;
-            padding: 10px 20px;
-            font-size: 14px;
-            font-weight: 600;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
         }
 
         .print-btn:hover {
-            background-color: #333333;
+            background-color: var(--primary-hover);
         }
 
-        /* Receipt Card Styling */
+        .whatsapp-btn {
+            background-color: var(--whatsapp-light);
+            color: #15803d;
+            border: 1px solid rgba(37, 211, 102, 0.3);
+        }
+
+        .whatsapp-btn:hover {
+            background-color: var(--whatsapp);
+            color: #ffffff;
+        }
+
+        /* Receipt Card */
         .receipt-card {
-            background: #ffffff;
-            width: 100%;
-            max-width: 500px;
-            padding: 30px;
-            box-sizing: border-box;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border);
         }
 
-        /* Header Section */
+        /* Header */
         .shop-header {
             text-align: center;
-            margin-bottom: 25px;
-            border-bottom: 1px dashed var(--border-color);
-            padding-bottom: 15px;
+            padding-bottom: 16px;
+            border-bottom: 2px dashed var(--border);
+            margin-bottom: 16px;
         }
 
         .shop-name {
-            font-size: 22px;
+            font-size: 1.5rem;
             font-weight: 700;
-            margin: 0 0 5px 0;
-            text-transform: uppercase;
+            color: var(--text-main);
+            margin-bottom: 4px;
         }
 
         .shop-title {
-            font-size: 14px;
-            color: #666;
-            margin: 0 0 10px 0;
+            font-size: 0.875rem;
+            color: var(--primary);
+            font-weight: 500;
+            margin-bottom: 4px;
         }
 
         .shop-details {
-            font-size: 12px;
-            color: #777;
-            margin: 2px 0;
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            line-height: 1.4;
         }
 
-        /* Meta / Invoice Info Section */
+        /* Invoice Meta */
         .invoice-meta {
             display: flex;
             justify-content: space-between;
-            font-size: 13px;
-            margin-bottom: 25px;
-            color: #555;
+            background-color: var(--primary-light);
+            padding: 10px 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 0.8125rem;
         }
 
-        .meta-group p {
-            margin: 4px 0;
+        .meta-group {
+            display: flex;
+            flex-direction: column;
         }
 
         .invoice-id {
-            font-weight: 700;
-            color: #111;
+            font-weight: 600;
+            color: var(--primary);
         }
 
-        /* Table Styling for Items */
+        .meta-group.text-right {
+            text-align: right;
+            color: var(--text-muted);
+        }
+
+        /* Items Table */
         .items-table {
             width: 100%;
             border-collapse: collapse;
-            text-align: left;
-            margin-bottom: 25px;
+            margin-bottom: 16px;
         }
 
         .items-table th {
-            font-size: 12px;
+            text-align: left;
+            font-size: 0.75rem;
             text-transform: uppercase;
-            color: #888;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--border-color);
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
         }
 
-        .items-table td {
-            padding: 12px 0;
-            font-size: 14px;
-            border-bottom: 1px solid #f1f1f1;
-        }
-
-        .text-right {
+        .items-table th.text-right {
             text-align: right;
         }
 
-        .text-center {
-            text-align: center;
+        .items-table td {
+            padding: 10px 0;
+            font-size: 0.875rem;
+            border-bottom: 1px solid var(--border);
         }
 
-        /* Total Section */
-        .total-section {
-            border-top: 2px solid var(--primary-color);
-            padding-top: 15px;
+        .items-table td.text-right {
+            text-align: right;
+        }
+
+        .price-strike {
+            text-decoration: line-through;
+            color: var(--strike);
+            margin-right: 6px;
+            font-size: 0.8125rem;
+        }
+
+        .price-current {
+            font-weight: 600;
+        }
+
+        /* Summary Section */
+        .summary-section {
+            display: flex;
+            flex-direction: column;
+            gap: 0px;
+            padding-top: 2px;
+            margin-bottom: 1px;
+        }
+
+        .summary-row {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
+            font-size: 0.875rem;
+            color: var(--text-muted);
         }
 
-        .total-label {
-            font-size: 16px;
-            font-weight: 700;
-        }
-
-        .total-amount {
-            font-size: 20px;
-            font-weight: 800;
-        }
-
-        /* Footer */
-        .receipt-footer {
-            text-align: center;
-            font-size: 14px;
+        .summary-row.discount {
+            color: var(--success);
             font-weight: 500;
-            color: #666;
-            border-top: 1px dashed var(--border-color);
-            padding-top: 20px;
         }
 
-        /* Print Media Queries - Hides interactive UI and optimizes for paper/PDF */
+        .summary-row.total {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text-main);
+            padding-top: 10px;
+            border-top: 2px dashed var(--border);
+            margin-top: 4px;
+        }
+
+        /* Navigation Links */
+        .nav-actions {
+            margin-top: 16px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .complete-btn {
+            background-color: var(--text-main);
+            color: #ffffff;
+            text-align: center;
+        }
+
+        .complete-btn:hover {
+            background-color: #000000;
+        }
+
+        /* Print Style Overrides */
         @media print {
             body {
-                background-color: #ffffff;
+                background: none;
                 padding: 0;
             }
-            .action-panel {
-                display: none; /* Hides print button while printing */
-            }
-            .receipt-card {
-                border: none;
-                box-shadow: none;
-                padding: 0;
-                width: 100%;
+
+            .container {
                 max-width: 100%;
+            }
+
+            .action-panel, .nav-actions {
+                display: none !important;
+            }
+
+            .receipt-card {
+                box-shadow: none;
+                border: none;
+                padding: 0;
             }
         }
     </style>
 </head>
 <body>
 
-    <div class="action-panel">
-        <button class="print-btn" onclick="window.print()">
-            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
-                <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2H5zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1z"/>
-            </svg>
-            Print Bill
-        </button>
-    </div>
+    <div class="container">
+        <!-- Top Action Buttons -->
+        <div class="action-panel">
+            <button class="btn print-btn" onclick="window.print()">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
+                    <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2H5zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1z"/>
+                </svg>
+                Print Bill
+            </button>
+            <a href="/whatsapp_bill/{{ billing.id }}" class="btn whatsapp-btn">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.64 1.93 6.56 6.56 0 0 1 1.921 4.646c0 3.627-2.95 6.582-6.565 6.582z"/>
+                </svg>
+                WhatsApp
+            </a>
+        </div>
 
-    <div class="receipt-card">
-        
-        <header class="shop-header">
-            {% for shop in shop %}
-            <h1 class="shop-name">{{ shop.shop_name }}</h1>
-            <p class="shop-title">{{ shop.shop_title }}</p>
-            <p class="shop-details">{{ shop.shop_location }}</p>
-            <p class="shop-details">Phone: {{ shop.shop_phone_number }}</p>
-            {% endfor %}
-        </header>
+        <!-- Receipt Card -->
+        <div class="receipt-card">
+            <header class="shop-header">
+                {% for s in shop %}
+                <h1 class="shop-name">{{ s.shop_name }}</h1>
+                <p class="shop-title">{{ s.shop_title }}</p>
+                <p class="shop-details">{{ s.shop_location }}</p>
+                <p class="shop-details">Phone: {{ s.shop_phone_number }}</p>
+                {% endfor %}
+            </header>
 
-        <div class="invoice-meta">
-            <div class="meta-group">
-                <p class="invoice-id">Invoice: #{{ billing.id }}</p>
+            <div class="invoice-meta">
+                <div class="meta-group">
+                    <span class="invoice-id">Invoice: #{{ billing.id }}</span>
+                </div>
+                <div class="meta-group text-right">
+                    <span>Date: {{ billing.billing_date }}</span>
+                </div>
             </div>
-            <div class="meta-group text-right">
-                <p>Date: {{ billing.billing_date }}</p>
+
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th>Item Description</th>
+                        <th class="text-right">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in products %}
+                    <tr>
+                        <td>{{ p.product_name }}</td>
+                        <td class="text-right">
+                            {% if p.backup_product_selling_amount == p.product_selling_amount %}
+                                <span class="price-current">{{ p.backup_product_selling_amount }}</span>
+                            {% else %}
+                                <span class="price-strike">{{ p.backup_product_selling_amount }}</span>
+                                <span class="price-current">{{ p.product_selling_amount }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Summary Section -->
+            <div class="summary-section">
+                {% if billing.applies_discount_amount > 0 and billing.billing_amount - billing.applies_discount_amount==100 %}
+                    <div class="summary-row">
+                        <span>Total Bill Amount</span>
+                        <span>{{ billing.billing_amount }}</span>
+                    </div>
+                    <div class="summary-row discount">
+                        <span>Discount Applied ({% if billing.applies_discount %}{{ billing.applies_discount }}%{% else %}{{ ((billing.applies_discount_amount / billing.billing_amount) * 100)|round(1) }}%{% endif %})</span>
+                        <span>-{{ (billing.billing_amount - billing.applies_discount_amount)|round(1) }} </span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Final Amount</span>
+                        <span>{{ billing.applies_discount_amount }} </span>
+                    </div>
+                {% else %}
+                    <div class="summary-row total">
+                        <span>Final Amount</span>
+                        <span>Rs.{{ billing.applies_discount_amount }} </span>
+                    </div>
+                {% endif %}
             </div>
         </div>
 
+        <!-- Bottom Navigation -->
+        <div class="nav-actions">
+            <a href="/shop_dashboard" class="btn complete-btn">Complete & Return to Dashboard</a>
+        </div>
+    </div>
 
-        <table>
-            <thead>
-        <tr>Product Name</tr>
-                <tr>Product Amount</tr>
-            </thead>
-            <tbody>
-                {% for selled in selled %}
-                <tr>
-                    {% if   %}{% endif %}
-                    <td>{{ selled.selled_product_name }}</td> <td>{{ selled.selled_product_amount }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {{ billing.billing_amount }} <br>
-        {{ billing.applies_discount }} <br>
-        {{ billing.applies_discount_amount }}
-
-
-    <a href="/shop_dashboard">complete</a>
-    <address> <a href="/whatsapp_bill/{{ billing.id }}">Send WhatsApp Bill</a></address>
-
-    </body>
-</html> 
+</body>
+</html>

@@ -1,11 +1,11 @@
-from flask import Flask, render_template, redirect, session, request,url_for, flash, abort, Response, jsonify
+from flask import Flask, render_template, redirect, request,url_for, flash, abort, Response, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_manager,  login_user, login_required, current_user, UserMixin, logout_user
 import os
+
 from datetime import date, datetime
 from flask_migrate import Migrate
 import pandas as pd
-from sympy import prod, product
 import requests
 
 
