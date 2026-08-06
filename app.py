@@ -2,7 +2,9 @@ from flask import Flask, render_template, redirect, request,url_for, flash, abor
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_manager,  login_user, login_required, current_user, UserMixin, logout_user
 import os
-
+import qrcode
+import io
+import base64
 from datetime import date, datetime
 from flask_migrate import Migrate
 import pandas as pd
@@ -553,6 +555,43 @@ def upload_clients():
             return redirect(request.url)
             
     return render_template('clients_bulk_import.html')
+
+@app.route('/qr_code_page',methods=['GET','POST'])
+def qr_code_page() :
+    product = Product.query.all()
+    return render_template('qr_code.html',product=product)
+
+
+# QR Generate
+@app.route('/qr_code/<int:product_id>', methods=['GET'])
+def qr_code(product_id):
+    # 1. Get the letter data
+    product = Product.query.get_or_404(product_id)
+    
+    # CRITICAL FIX: Encode just the raw string ID instead of complex JSON
+    # qr_data = str(product) 
+    qr_data = product.product_id
+    # 3. Generate QR Image with High Error Correction
+    qr = qrcode.QRCode(
+        version=None, 
+        error_correction=qrcode.constants.ERROR_CORRECT_M,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(qr_data)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+
+    # 4. Save to memory buffer
+    buf = io.BytesIO()
+    img.save(buf)
+    buf.seek(0)
+    
+    # 5. Convert to string for HTML
+    qr_base64 = base64.b64encode(buf.getvalue()).decode('ascii')
+    
+    return render_template('qr_code.html', qr_code=qr_base64, product=product)
+
 
 
 @app.route('/logout')

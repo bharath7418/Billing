@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Page</title>
+</head>
+<body>
+    <div style="text-align: center; font-family: sans-serif; border: 2px solid #333; padding: 20px; width: 300px; margin: auto;">
+      <h2 style="margin-top: 0;">QR Code</h2>
+      <hr />
+      <img src="data:image/png;base64,{{ qr_code }}" style="width: 200px; height: 200px;" />
+      <p>
+        
+      </p>
+      <p style="font-size: 0.8rem; color: #666;">ID: #{{ product.id }}</p>
+      <button onclick="window.print()">Download/Print</button>
+    </div>
+
+    
+    
+
+
+</body>
+</html>
