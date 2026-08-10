@@ -3,23 +3,348 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Page</title>
+    <title>Dynamic Thermal Sticker Generator</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 15px;
+        }
+
+        /* Thermal High-Contrast Effect */
+        .thermal-print {
+            filter: grayscale(100%) contrast(125%);
+            color: #000000 !important;
+        }
+
+        .sno-badge {
+            background-color: #000;
+            color: #fff;
+        }
+
+        /* Screen & Print Size Container Styling */
+        .sticker-card {
+            background-color: #ffffff;
+            border: 1px solid #000000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+            transition: width 0.2s ease, min-height 0.2s ease;
+            box-sizing: border-box;
+        }
+
+        .qr-card.hidden {
+            display: none !important;
+        }
+
+        /* PRINT CONFIGURATIONS */
+        @media print {
+            body {
+                background-color: transparent !important;
+                margin: 0;
+                padding: 0;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            /* PRINT MODE 1: COMBINED SHEET GRID (Fits multiple QR cards on one sheet) */
+            body.print-combined-sheet .qr-grid {
+                display: flex !important;
+                flex-wrap: wrap !important;
+                gap: 8px !important;
+                justify-content: flex-start !important;
+            }
+
+            body.print-combined-sheet .sticker-card {
+                page-break-inside: avoid !important;
+                page-break-after: auto !important;
+                box-shadow: none !important;
+                border: 1px solid #000000 !important;
+            }
+
+            /* PRINT MODE 2: SEPARATE INDIVIDUAL THERMAL ROLL (1 sticker per page) */
+            body.print-individual-roll .qr-grid {
+                display: block !important;
+            }
+
+            body.print-individual-roll .sticker-card {
+                box-shadow: none !important;
+                border: 1px solid #000000 !important;
+                margin: 0 auto 10px auto !important;
+                page-break-after: always !important;
+                page-break-inside: avoid !important;
+            }
+        }
+    </style>
 </head>
-<body>
-    <div style="text-align: center; font-family: sans-serif; border: 2px solid #333; padding: 20px; width: 300px; margin: auto;">
-      <h2 style="margin-top: 0;">QR Code</h2>
-      <hr />
-      <img src="data:image/png;base64,{{ qr_code }}" style="width: 200px; height: 200px;" />
-      <p>
-        
-      </p>
-      <p style="font-size: 0.8rem; color: #666;">ID: #{{ product.id }}</p>
-      <button onclick="window.print()">Download/Print</button>
+<body class="p-4 md:p-6 thermal-print print-combined-sheet">
+
+    <!-- TOP CONTROL PANEL: SEARCH, ALL FILTERS & STICKER SIZING (NO-PRINT) -->
+    <div class="no-print bg-white p-5 rounded-lg border border-gray-300 shadow-md mb-6 max-w-7xl mx-auto">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <span class="material-symbols-outlined">settings_suggest</span> Thermal Sticker Filter & Print Options
+        </h2>
+
+        <!-- FILTER & SIZE CONTROLS GRID -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
+            
+            <!-- STICKER PRESET SIZE SELECTOR -->
+            <div class="flex flex-col">
+                <label for="stickerPreset" class="text-[11px] font-bold text-gray-600 uppercase mb-1">Size Preset</label>
+                <select id="stickerPreset" onchange="applyPresetSize(this.value)" class="p-2 border border-gray-300 rounded text-xs bg-gray-50 focus:ring-2 focus:ring-black">
+                    <option value="50x30">50mm × 30mm</option>
+                    <option value="58x40">58mm × 40mm</option>
+                    <option value="80x50" selected>80mm × 50mm</option>
+                    <option value="100x150">100mm × 150mm</option>
+                    <option value="custom">Custom...</option>
+                </select>
+            </div>
+
+            <!-- CUSTOM DIMENSIONS (MM) -->
+            <div class="flex flex-col">
+                <label for="customWidth" class="text-[11px] font-bold text-gray-600 uppercase mb-1">Width (mm)</label>
+                <input type="number" id="customWidth" value="80" oninput="updateCustomSize()" class="p-2 border border-gray-300 rounded text-xs">
+            </div>
+
+            <div class="flex flex-col">
+                <label for="customHeight" class="text-[11px] font-bold text-gray-600 uppercase mb-1">Min Height (mm)</label>
+                <input type="number" id="customHeight" value="50" oninput="updateCustomSize()" class="p-2 border border-gray-300 rounded text-xs">
+            </div>
+
+            <!-- SEARCH FILTER -->
+            <div class="flex flex-col">
+                <label for="filterSearch" class="text-[11px] font-bold text-gray-600 uppercase mb-1">Search (Name/ID)</label>
+                <input type="text" id="filterSearch" placeholder="Name or ID..." class="p-2 border border-gray-300 rounded text-xs">
+            </div>
+
+            <!-- STATUS FILTER -->
+            <div class="flex flex-col">
+                <label for="filterStatus" class="text-[11px] font-bold text-gray-600 uppercase mb-1">Status</label>
+                <select id="filterStatus" class="p-2 border border-gray-300 rounded text-xs">
+                    <option value="">All Statuses</option>
+                    <option value="active">Active</option>
+                    <option value="sold">Sold</option>
+                    <option value="expired">Expired</option>
+                </select>
+            </div>
+
+            <!-- LOCATION FILTER -->
+            <div class="flex flex-col">
+                <label for="filterLocation" class="text-[11px] font-bold text-gray-600 uppercase mb-1">Location</label>
+                <input type="text" id="filterLocation" placeholder="Shelf/Bin..." class="p-2 border border-gray-300 rounded text-xs">
+            </div>
+
+            <!-- MIN PRICE FILTER -->
+            <div class="flex flex-col">
+                <label for="filterMinPrice" class="text-[11px] font-bold text-gray-600 uppercase mb-1">Min Price ($)</label>
+                <input type="number" id="filterMinPrice" placeholder="0" class="p-2 border border-gray-300 rounded text-xs">
+            </div>
+
+            <!-- MAX PRICE FILTER -->
+            <div class="flex flex-col">
+                <label for="filterMaxPrice" class="text-[11px] font-bold text-gray-600 uppercase mb-1">Max Price ($)</label>
+                <input type="number" id="filterMaxPrice" placeholder="Any" class="p-2 border border-gray-300 rounded text-xs">
+            </div>
+
+            <!-- ENTRY DATE FILTER -->
+            <div class="flex flex-col sm:col-span-2">
+                <label for="filterEntryDate" class="text-[11px] font-bold text-gray-600 uppercase mb-1">Entry Date</label>
+                <input type="date" id="filterEntryDate" class="p-2 border border-gray-300 rounded text-xs">
+            </div>
+
+            <!-- PRINT LAYOUT MODE SELECTOR -->
+            <div class="flex flex-col sm:col-span-2">
+                <label for="printLayoutMode" class="text-[11px] font-bold text-gray-600 uppercase mb-1">Print Layout Format</label>
+                <select id="printLayoutMode" onchange="togglePrintLayout(this.value)" class="p-2 border border-black font-bold rounded text-xs bg-yellow-50 focus:ring-2 focus:ring-black">
+                    <option value="combined" selected>Combined Sheet (All QR codes on 1 page/grid)</option>
+                    <option value="individual">Separate Pages (1 QR code per thermal roll page)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- ACTIONS & STATS -->
+        <div class="mt-4 pt-3 border-t border-gray-200 flex flex-wrap justify-between items-center gap-3">
+            <div class="flex gap-2">
+                <button onclick="resetFilters()" class="px-4 py-2 bg-gray-600 text-white font-bold rounded text-xs hover:bg-gray-700">Reset All Filters</button>
+                <button onclick="window.print()" class="px-4 py-2 bg-black text-white font-bold rounded text-xs flex items-center gap-1 hover:bg-gray-800">
+                    <span class="material-symbols-outlined text-sm">print</span> Print QR Sheet
+                </button>
+            </div>
+            <span class="text-xs font-semibold text-gray-600" id="resultsCount">Showing all items</span>
+        </div>
     </div>
 
-    
-    
+    <!-- DYNAMIC STICKERS CONTAINER GRID -->
+    <div class="qr-grid flex flex-wrap justify-center gap-4" id="qrGrid">
+        {% for item in qr_list %}
+            <div class="qr-card sticker-card p-2 flex flex-col justify-between text-black relative"
+                 data-name="{{ item.product.product_name|default('', true)|lower }}"
+                 data-id="{{ item.product.product_id|default('', true)|lower }}"
+                 data-status="{{ item.product.status|default('active', true)|lower }}"
+                 data-location="{{ item.product.product_location|default('', true)|lower }}"
+                 data-price="{{ item.product.product_selling_amount|default(0, true) }}"
+                 data-entrydate="{{ item.product.product_entry_date|default('', true) }}">
 
+                <!-- HEADER SECTION -->
+                <div>
+                    <div class="flex justify-between items-start border-b border-black pb-1 mb-1">
+                        <div>
+                            <span class="sno-badge text-[9px] px-1 font-bold rounded">#{{ loop.index }}</span>
+                            {% for s in shop %}
+                                <h1 class="font-black text-xs uppercase leading-tight tracking-tight mt-0.5">{{ s.shop_name }}</h1>
+                                <p class="text-[9px] leading-none">{{ s.shop_location }}</p>
+                            {% endfor %}
+                        </div>
+                        <span class="text-[9px] font-bold uppercase border border-black px-1 rounded">
+                            {{ item.product.status|default('ACTIVE', true) }}
+                        </span>
+                    </div>
 
+                    <!-- PRODUCT TITLE -->
+                    <h2 class="font-extrabold text-sm uppercase leading-tight my-1 truncate">
+                        {{ item.product.product_name if item.product.product_name else 'ITEM #' ~ item.product.product_id }}
+                    </h2>
+                </div>
+
+                <!-- MAIN BODY & QR SECTION -->
+                <div class="flex items-center justify-between gap-1 my-1 border-t border-b border-black py-1">
+                    <!-- DETAILS -->
+                    <div class="text-[10px] leading-tight flex-1">
+                        <p><strong>ID:</strong> <span class="mono">{{ item.product.product_id }}</span></p>
+                        <p><strong>PRICE:</strong> ${{ item.product.product_selling_amount }}</p>
+                    </div>
+
+                    <!-- QR CODE IMAGE -->
+                    <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center border border-black p-0.5">
+                        <img src="data:image/png;base64,{{ item.qr_code }}" alt="QR Code" class="w-full h-full object-contain">
+                    </div>
+                </div>
+
+            </div>
+            
+        {% else %}
+            <p class="text-center font-bold text-gray-500 py-8 no-print">No products match your criteria.</p>
+        {% endfor %}
+    </div>
+
+    <!-- SCRIPT FOR FILTERING, PRINT LAYOUT, AND SIZING -->
+    <script>
+        // 1. PRINT LAYOUT TOGGLE (Combined Sheet vs Separate Roll Pages)
+        function togglePrintLayout(mode) {
+            if (mode === 'combined') {
+                document.body.classList.add('print-combined-sheet');
+                document.body.classList.remove('print-individual-roll');
+            } else {
+                document.body.classList.add('print-individual-roll');
+                document.body.classList.remove('print-combined-sheet');
+            }
+        }
+
+        // 2. STICKER DIMENSION CONTROL
+        function setStickerDimensions(widthMm, heightMm) {
+            const cards = document.querySelectorAll('.sticker-card');
+            cards.forEach(card => {
+                card.style.width = widthMm + 'mm';
+                card.style.minHeight = heightMm + 'mm';
+            });
+        }
+
+        function applyPresetSize(preset) {
+            const customW = document.getElementById('customWidth');
+            const customH = document.getElementById('customHeight');
+
+            if (preset === '50x30') {
+                customW.value = 50; customH.value = 30;
+            } else if (preset === '58x40') {
+                customW.value = 58; customH.value = 40;
+            } else if (preset === '80x50') {
+                customW.value = 80; customH.value = 50;
+            } else if (preset === '100x150') {
+                customW.value = 100; customH.value = 150;
+            }
+            
+            updateCustomSize();
+        }
+
+        function updateCustomSize() {
+            const width = parseFloat(document.getElementById('customWidth').value) || 80;
+            const height = parseFloat(document.getElementById('customHeight').value) || 50;
+            setStickerDimensions(width, height);
+        }
+
+        // 3. COMPLETE FILTERING LOGIC
+        function applyFilters() {
+            const searchValue = document.getElementById('filterSearch').value.toLowerCase().trim();
+            const statusValue = document.getElementById('filterStatus').value.toLowerCase();
+            const locationValue = document.getElementById('filterLocation').value.toLowerCase().trim();
+            const minPrice = parseFloat(document.getElementById('filterMinPrice').value) || 0;
+            const maxPrice = parseFloat(document.getElementById('filterMaxPrice').value) || Infinity;
+            const entryDate = document.getElementById('filterEntryDate').value;
+
+            const cards = document.querySelectorAll('.qr-card');
+            let visibleCount = 0;
+
+            cards.forEach(card => {
+                const name = card.dataset.name || '';
+                const id = card.dataset.id || '';
+                const status = card.dataset.status || '';
+                const location = card.dataset.location || '';
+                const price = parseFloat(card.dataset.price) || 0;
+                const date = card.dataset.entrydate || '';
+
+                const matchesSearch = !searchValue || name.includes(searchValue) || id.includes(searchValue);
+                const matchesStatus = !statusValue || status === statusValue;
+                const matchesLocation = !locationValue || location.includes(locationValue);
+                const matchesPrice = price >= minPrice && price <= maxPrice;
+                const matchesDate = !entryDate || date === entryDate;
+
+                if (matchesSearch && matchesStatus && matchesLocation && matchesPrice && matchesDate) {
+                    card.classList.remove('hidden');
+                    visibleCount++;
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+
+            document.getElementById('resultsCount').innerText = `Showing ${visibleCount} of ${cards.length} items`;
+        }
+
+        function resetFilters() {
+            document.getElementById('filterSearch').value = '';
+            document.getElementById('filterStatus').value = '';
+            document.getElementById('filterLocation').value = '';
+            document.getElementById('filterMinPrice').value = '';
+            document.getElementById('filterMaxPrice').value = '';
+            document.getElementById('filterEntryDate').value = '';
+            document.getElementById('stickerPreset').value = '80x50';
+            document.getElementById('printLayoutMode').value = 'combined';
+            
+            togglePrintLayout('combined');
+            applyPresetSize('80x50');
+            applyFilters();
+        }
+
+        // Event listeners initialization
+        document.querySelectorAll('.no-print input, .no-print select').forEach(element => {
+            element.addEventListener('input', applyFilters);
+            element.addEventListener('change', applyFilters);
+        });
+
+        // Initialize sizing on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            updateCustomSize();
+            togglePrintLayout('combined');
+        });
+    </script>
 </body>
 </html>

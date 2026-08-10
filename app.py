@@ -148,7 +148,7 @@ def new_product():
         discount = request.form.get('discount')
         status = request.form.get('status')
         product_location = request.form.get('product_location')
-        product_entry_date = datetime.utcnow()
+        product_entry_date = datetime.utcnow().strftime("%Y-%m-%d")
         product = Product(
             product_name=product_name,
             product_id=product_id,
@@ -556,42 +556,37 @@ def upload_clients():
             
     return render_template('clients_bulk_import.html')
 
-@app.route('/qr_code_page',methods=['GET','POST'])
-def qr_code_page() :
-    product = Product.query.all()
-    return render_template('qr_code.html',product=product)
-
-
-# QR Generate
-@app.route('/qr_code/<int:product_id>', methods=['GET'])
-def qr_code(product_id):
-    # 1. Get the letter data
-    product = Product.query.get_or_404(product_id)
-    
-    # CRITICAL FIX: Encode just the raw string ID instead of complex JSON
-    # qr_data = str(product) 
-    qr_data = product.product_id
-    # 3. Generate QR Image with High Error Correction
+def generate_qr_base64(data):
+    """Helper function to convert string data into a Base64-encoded QR image."""
     qr = qrcode.QRCode(
-        version=None, 
+        version=None,
         error_correction=qrcode.constants.ERROR_CORRECT_M,
-        box_size=10,
-        border=4,
+        box_size=6,  # Slightly smaller box size fits better on grid layouts
+        border=3,
     )
-    qr.add_data(qr_data)
+    qr.add_data(str(data))
     qr.make(fit=True)
     img = qr.make_image(fill_color="black", back_color="white")
 
-    # 4. Save to memory buffer
     buf = io.BytesIO()
     img.save(buf)
     buf.seek(0)
-    
-    # 5. Convert to string for HTML
-    qr_base64 = base64.b64encode(buf.getvalue()).decode('ascii')
-    
-    return render_template('qr_code.html', qr_code=qr_base64, product=product)
 
+    return base64.b64encode(buf.getvalue()).decode("ascii")
+
+
+@app.route("/qr_code_page", methods=["GET"])
+def qr_code_page():
+    products = Product.query.all()
+    shop = ShopDealer.query.all()
+
+    # Build a list of dictionaries containing the product and its generated QR code
+    qr_list = []
+    for product in products:
+        qr_base64 = generate_qr_base64(product.product_id)
+        qr_list.append({"product": product, "qr_code": qr_base64})
+
+    return render_template("qr_code.html", qr_list=qr_list,shop=shop)
 
 
 @app.route('/logout')
