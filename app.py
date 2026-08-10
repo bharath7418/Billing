@@ -5,10 +5,11 @@ import os
 import qrcode
 import io
 import base64
-from datetime import date, datetime
+from datetime import date, datetime, time
 from flask_migrate import Migrate
 import pandas as pd
 import requests
+from sqlalchemy import func
 
 
 app  = Flask(__name__)
@@ -132,10 +133,29 @@ def shop_login():
             flash('Invalid shop username or password', 'danger')
     return render_template('shop_login.html')
 
+# @app.route('/shop_dashboard')
+# @login_required
 @app.route('/shop_dashboard')
-@login_required
 def shop_dashboard():
-    return render_template('shop_dashboard.html')
+    today_start = datetime.combine(datetime.utcnow().date(), time.min)
+    
+    # 1. Daily Billing Count
+    daily_billing_count = Billing.query.filter(Billing.billing_date >= today_start).count()
+    
+    # 2. Overall Total Bill Amount
+    total_bill_amount = db.session.query(func.sum(Billing.billing_amount)).scalar() or 0
+    
+    # 3. Total Customers Count
+    total_customers = Customer.query.count()
+    
+    # 4. Overall Active Product Count
+    active_product_count = Product.query.filter_by(status='active').count()
+
+    return render_template('shop_dashboard.html',
+                           daily_billing_count=daily_billing_count,
+                           total_bill=total_bill_amount,
+                           total_customers=total_customers,
+                           active_product_count=active_product_count)
 
 @app.route('/new_product', methods=['GET', 'POST'])
 @login_required
@@ -401,13 +421,16 @@ def upload_products():
                 def parse_date(val):
                     if not val or str(val).strip().lower() in ['nil', 'none', 'null', '']:
                         return None
+                    
+                    clean_val = str(val).strip()
+                    
                     try:
-                        # Handles typical pandas string conversions
-                        return datetime.strptime(str(val).strip(), "%Y-%m-%d %H:%M:%S")
+                        # Handles typical pandas string conversions (YYYY-MM-DD HH:MM:SS)
+                        return datetime.strptime(clean_val, "%Y-%m-%d %H:%M:%S").date()
                     except ValueError:
                         try:
                             # Fallback for shorthand dates "YYYY-MM-DD"
-                            return datetime.strptime(str(val).strip(), "%Y-%m-%d")
+                            return datetime.strptime(clean_val, "%Y-%m-%d").date()
                         except ValueError:
                             return None
 
@@ -416,7 +439,7 @@ def upload_products():
                     product_name_val = str(row.get('product_name', '')).strip() if row.get('product_name') else None
                     product_id_val = str(row.get('product_id', '')).strip() if row.get('product_id') else None
                     
-                    # Numeric conversions (handle potential string or NaN states gracefully)
+                    # Numeric conversions (handle potential string or NaNR states gracefully)
                     product_selling_amount_val = row.get('product_selling_amount')  
                     product_raw_amount_val = row.get('product_raw_amount')
                     discount_val = row.get('discount')
@@ -425,7 +448,6 @@ def upload_products():
                     # Safely handle the Date Conversions
                     product_entry_date_val = parse_date(row.get('product_entry_date'))
                     product_exit_date_val = parse_date(row.get('product_exit_date'))
-                    
                     # Validate required constraints
                     if not product_name_val or not product_id_val:
                         continue # Skip bad/empty rows

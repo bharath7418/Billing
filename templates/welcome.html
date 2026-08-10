@@ -1,17 +1,330 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Billing System</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome | Ramajayam Tailors & Readymades</title>
+  
+  <!-- Google Fonts for High-End Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* CSS RESET & VARIABLES */
+    :root {
+      --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #f1f5f9 100%);
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --card-border: rgba(184, 134, 11, 0.25);
+      --gold-primary: #b8860b;
+      --gold-dark: #8b6508;
+      --gold-gradient: linear-gradient(135deg, #996515 0%, #d4af37 40%, #aa771c 100%);
+      --text-dark: #0f172a;
+      --text-muted: #475569;
+      --box-bg: rgba(248, 250, 252, 0.8);
+      --shadow-soft: 0 20px 40px -15px rgba(15, 23, 42, 0.08), 0 0 20px rgba(184, 134, 11, 0.08);
+      --font-heading: 'Cinzel', serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-gradient);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* BACKGROUND DECORATIVE ACCENTS */
+    body::before,
+    body::after {
+      content: '';
+      position: absolute;
+      width: 380px;
+      height: 380px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, rgba(255,255,255,0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    body::before { top: -60px; left: -60px; }
+    body::after { bottom: -60px; right: -60px; }
+
+    /* CONTAINER CARD */
+    .welcome-container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 520px;
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 40px 32px;
+      text-align: center;
+      box-shadow: var(--shadow-soft);
+      animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* BADGE / ICON HEADER */
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: #fefce8;
+      border: 1px solid var(--gold-primary);
+      color: var(--gold-primary);
+      margin-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(184, 134, 11, 0.12);
+    }
+
+    .brand-badge svg {
+      width: 32px;
+      height: 32px;
+      fill: currentColor;
+    }
+
+    /* TITLES & HEADINGS */
+    .brand-name {
+      font-family: var(--font-heading);
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .brand-tagline {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--gold-dark);
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+
+    /* LOGIN PROMPT CARD */
+    .login-box {
+      background: var(--box-bg);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 28px;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+    }
+
+    .login-box p {
+      font-size: 1rem;
+      color: var(--text-dark);
+      line-height: 1.6;
+      font-weight: 500;
+    }
+
+    .login-box p + p {
+      margin-top: 8px;
+    }
+
+    .login-box a {
+      color: var(--gold-primary);
+      font-weight: 700;
+      text-decoration: none;
+      padding: 2px 4px;
+      border-bottom: 2px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    .login-box a:hover {
+      color: var(--gold-dark);
+      border-bottom-color: var(--gold-primary);
+    }
+
+    /* CTA BUTTON */
+    .btn-login {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 14px 28px;
+      margin-top: 16px;
+      background: var(--gold-gradient);
+      color: #ffffff;
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 1rem;
+      border: none;
+      border-radius: 12px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 15px rgba(184, 134, 11, 0.25);
+    }
+
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(184, 134, 11, 0.35);
+    }
+
+    /* ADDRESS SECTION */
+    .address-section {
+      border-top: 1px dashed rgba(203, 213, 225, 0.8);
+      padding-top: 24px;
+      text-align: center;
+    }
+
+    .address-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--gold-primary);
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .address-text {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .contact-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #ffffff;
+      border: 1px solid rgba(226, 232, 240, 1);
+      padding: 10px 20px;
+      border-radius: 50px;
+      color: var(--text-dark);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      transition: all 0.3s ease;
+    }
+
+    .contact-badge:hover {
+      border-color: var(--gold-primary);
+      color: var(--gold-primary);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(184, 134, 11, 0.15);
+    }
+
+    .contact-badge svg {
+      width: 18px;
+      height: 18px;
+      fill: var(--gold-primary);
+    }
+
+    /* FOOTER CREDIT */
+    .footer-note {
+      margin-top: 24px;
+      font-size: 0.75rem;
+      color: #94a3b8;
+      letter-spacing: 0.5px;
+    }
+
+    /* MOBILE OPTIMIZATIONS */
+    @media (max-width: 480px) {
+      .welcome-container {
+        padding: 32px 20px;
+        border-radius: 20px;
+      }
+
+      .brand-name {
+        font-size: 1.8rem;
+      }
+
+      .brand-tagline {
+        font-size: 0.8rem;
+        letter-spacing: 1.5px;
+      }
+
+      .login-box {
+        padding: 18px 14px;
+      }
+
+      .login-box p {
+        font-size: 0.95rem;
+      }
+    }
+  </style>
 </head>
 <body>
-    <h1>Welcome to the Billing System</h1>
-    <p>Please <a href="/shop_login">login</a> to access the billing system.</p>
+
+  <main class="welcome-container">
     
-    <a href="/customer"></a>
+    <!-- BRAND BADGE / ICON -->
+    <div class="brand-badge">
+      <svg viewBox="0 0 24 24">
+        <path d="M6 3c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 12c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm10-10a1 1 0 0 0-1 1v2.09l-3.36 3.36 1.41 1.41L18 8.09V6a1 1 0 0 0-1-1zm-6.21 6.5l-1.41-1.41-3.36 3.36V12a1 1 0 0 0-2 0v5a1 1 0 0 0 1 1h5a1 1 0 0 0 0-2h-2.09l3.86-3.86z"/>
+      </svg>
+    </div>
 
+    <!-- BRANDING -->
+    <h1 class="brand-name">Ramajayam</h1>
+    <div class="brand-tagline">Tailors & Readymades</div>
 
+    <!-- LOGIN PROMPT BOX -->
+    <div class="login-box">
+      <p>Please <a href="/shop_login">login</a> to access the billing system.</p>
+      
+      <!-- DIRECT ACTION BUTTON -->
+      <a href="/shop_login" class="btn-login">
+        <span>Go To Billing Login</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </a>
+    </div>
+
+    <!-- ADDRESS & LOCATION SECTION -->
+    <section class="address-section">
+      <div class="address-title">Store Location</div>
+      <p class="address-text">
+        Bypass Road, Pernamallur,<br>
+        Vandavasi Tk, Tiruvannamallai District - 604 503.
+      </p>
+
+      <!-- CONTACT BUTTON -->
+      <a href="tel:9364290146" class="contact-badge">
+        <svg viewBox="0 0 24 24">
+          <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+        </svg>
+        <span>Cell: 9364290146</span>
+      </a>
+    </section>
+
+    <div class="footer-note">
+      &copy; Ramajayam Tailors & Readymades. All rights reserved.
+    </div>
+
+  </main>
 
 </body>
 </html>
