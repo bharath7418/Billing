@@ -1,366 +1,423 @@
-    <!DOCTYPE html>
-    <html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Security Gateway Control</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link
-            href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap"
-            rel="stylesheet">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ramajayam Readymades</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
 
-        <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
-        <style>
-            :root {
-                /* Architectural System Tokens */
-                --bg-surface: #f8fafc;
-                --bg-card: #ffffff;
-                --text-primary: #0f172a;
-                --text-secondary: #475569;
-                --text-muted: #94a3b8;
+    <style>
+        :root {
+            /* Architectural System Tokens */
+            --bg-surface: #f8fafc;
+            --bg-card: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
 
-                --brand-primary: #2563eb;
-                --brand-primary-light: #eff6ff;
-                --brand-danger: #ef4444;
-                --brand-success: #16a34a;
+            --brand-primary: #2563eb;
+            --brand-primary-light: #eff6ff;
+            --brand-danger: #ef4444;
+            --brand-success: #16a34a;
 
-                --border-subtle: #f1f5f9;
-                --border-strong: #e2e8f0;
+            --border-subtle: #f1f5f9;
+            --border-strong: #e2e8f0;
 
-                --radius-xl: 14px;
-                --radius-md: 8px;
-                --radius-sm: 4px;
+            --radius-xl: 14px;
+            --radius-md: 8px;
+            --radius-sm: 4px;
 
-                --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
-                --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-            }
+            --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+            --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-            * {
-                box-sizing: border-box;
-                margin: 0;
-                padding: 0;
-                font-family: 'Plus Jakarta Sans', sans-serif;
-                -webkit-font-smoothing: antialiased;
-            }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
 
-            body {
-                background-color: var(--bg-surface);
-                color: var(--text-primary);
-                line-height: 1.4;
-            }
+        body {
+            background-color: var(--bg-surface);
+            color: var(--text-primary);
+            line-height: 1.4;
+        }
 
-            /* Responsive Layout Grid Architecture */
-            .app-bar {
-                background-color: var(--bg-card);
-                border-bottom: 1px solid var(--border-subtle);
-                position: sticky;
-                top: 0;
-                z-index: 100;
-                padding: 12px 16px;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                box-shadow: var(--shadow-sm);
-            }
+        /* Responsive Layout Grid Architecture */
+        .app-bar {
+            background-color: var(--bg-card);
+            border-bottom: 1px solid var(--border-subtle);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-sm);
+            flex-wrap: wrap;
+            gap: 8px;
+        }
 
-            .nav-left {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-            }
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
 
-            .btn-back {
-                background: none;
-                border: 1px solid var(--border-strong);
-                padding: 6px 12px;
-                border-radius: var(--radius-md);
-                cursor: pointer;
-                font-size: 0.8rem;
-                font-weight: 600;
-                color: var(--text-secondary);
-                transition: var(--transition-fast);
-            }
+        .btn-back {
+            background: none;
+            border: 1px solid var(--border-strong);
+            padding: 8px 14px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            transition: var(--transition-fast);
+            min-height: 40px;
+        }
 
-            .btn-back:hover {
-                background-color: var(--bg-surface);
-                color: var(--text-primary);
-            }
+        .btn-back:hover {
+            background-color: var(--bg-surface);
+            color: var(--text-primary);
+        }
 
-            .app-title {
-                font-size: 1.1rem;
-                font-weight: 800;
-            }
+        .app-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+        }
 
-            .day-order-badge {
-                background-color: var(--brand-primary-light);
-                color: var(--brand-primary);
-                padding: 4px 10px;
-                border-radius: 20px;
-                font-size: 0.775rem;
-                font-weight: 700;
-            }
+        .day-order-badge {
+            background-color: var(--brand-primary-light);
+            color: var(--brand-primary);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.775rem;
+            font-weight: 700;
+        }
 
+        .dashboard-container {
+            max-width: 1100px;
+            margin: 16px auto;
+            padding: 0 16px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        @media (min-width: 868px) {
             .dashboard-container {
-                max-width: 1100px;
-                margin: 16px auto;
-                padding: 0 16px;
-                display: grid;
-                grid-template-columns: 1fr;
-                gap: 16px;
+                grid-template-columns: 360px 1fr;
+                align-items: start;
             }
+        }
 
-            @media (min-width: 868px) {
-                .dashboard-container {
-                    grid-template-columns: 360px 1fr;
-                    align-items: start;
-                }
+        .panel-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            padding: 16px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 16px;
+        }
+
+        .panel-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Action Input Form Configurations */
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .input-with-action {
+            display: flex;
+            gap: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border-strong);
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            font-weight: 600;
+            outline: none;
+            background-color: var(--bg-surface);
+            transition: var(--transition-fast);
+            min-height: 44px;
+        }
+
+        .form-input:focus {
+            border-color: var(--brand-primary);
+            background-color: var(--bg-card);
+            box-shadow: 0 0 0 3px var(--brand-primary-light);
+        }
+
+        .btn-action-toggle {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-strong);
+            border-radius: var(--radius-md);
+            padding: 0 16px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-fast);
+            min-height: 44px;
+        }
+
+        .btn-action-toggle:hover {
+            background-color: var(--brand-primary-light);
+            border-color: var(--brand-primary);
+        }
+
+        .btn-action-toggle.active {
+            background-color: var(--brand-danger);
+            color: white;
+            border-color: var(--brand-danger);
+        }
+
+        /* QR Scanner Subsystem Container */
+        .scanner-viewport-wrapper {
+            display: none;
+            margin-bottom: 12px;
+            border: 1px solid var(--border-strong);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background-color: #000000;
+            position: relative;
+        }
+
+        #qr-reader {
+            width: 100% !important;
+            border: none !important;
+        }
+
+        #qr-reader __video {
+            object-fit: cover !important;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background-color: var(--brand-primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            min-height: 44px;
+        }
+
+        .btn-submit:hover {
+            background-color: #1d4ed8;
+        }
+
+        /* Form Controls for Billing Form */
+        label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-top: 12px;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border-strong);
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            background-color: var(--bg-surface);
+            outline: none;
+            transition: var(--transition-fast);
+            min-height: 44px;
+        }
+
+        .form-control:focus {
+            border-color: var(--brand-primary);
+            background-color: var(--bg-card);
+        }
+
+        /* Table Configurations & Responsive Wrappers */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 14px;
+            border: 1px solid var(--border-strong);
+            border-radius: var(--radius-md);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-card);
+            min-width: 500px; /* Prevents cell distortion on mobile view */
+        }
+
+        td, th {
+            padding: 10px 12px;
+            font-size: 0.85rem;
+            border-bottom: 1px solid var(--border-subtle);
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--bg-surface);
+            color: var(--text-secondary);
+            font-weight: 700;
+        }
+
+        td a {
+            color: var(--brand-primary);
+            text-decoration: none;
+            font-weight: 700;
+            padding: 4px;
+            display: inline-block;
+        }
+
+        /* Flash Message Alert Banners */
+        .alert-list {
+            list-style: none;
+            margin-bottom: 12px;
+        }
+
+        .alert-item {
+            padding: 10px 12px;
+            border-radius: var(--radius-md);
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Mobile Responsive Grid for Billing Input Fields */
+        .billing-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-strong);
+            border-radius: var(--radius-md);
+            padding: 16px;
+        }
+
+        @media (min-width: 640px) {
+            .billing-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* Mobile Optimization overrides */
+        @media (max-width: 600px) {
+            .dashboard-container {
+                padding: 0 12px;
+                margin: 12px auto;
             }
 
             .panel-card {
-                background-color: var(--bg-card);
-                border: 1px solid var(--border-subtle);
-                border-radius: var(--radius-xl);
-                padding: 16px;
-                box-shadow: var(--shadow-sm);
-                margin-bottom: 16px;
-            }
-
-            .panel-title {
-                font-size: 0.8rem;
-                font-weight: 700;
-                color: var(--text-muted);
-                margin-bottom: 12px;
-                text-transform: uppercase;
-                letter-spacing: 0.05em;
-            }
-
-            /* Action Input Form Configurations */
-            .form-group {
-                margin-bottom: 12px;
-            }
-
-            .input-with-action {
-                display: flex;
-                gap: 8px;
-            }
-
-            .form-input {
-                width: 100%;
-                padding: 10px 14px;
-                border: 1px solid var(--border-strong);
-                border-radius: var(--radius-md);
-                font-size: 0.9rem;
-                font-weight: 600;
-                outline: none;
-                background-color: var(--bg-surface);
-                transition: var(--transition-fast);
-            }
-
-            .form-input:focus {
-                border-color: var(--brand-primary);
-                background-color: var(--bg-card);
-                box-shadow: 0 0 0 3px var(--brand-primary-light);
-            }
-
-            .btn-action-toggle {
-                background-color: var(--bg-surface);
-                border: 1px solid var(--border-strong);
-                border-radius: var(--radius-md);
-                padding: 0 14px;
-                cursor: pointer;
-                font-size: 1.1rem;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                transition: var(--transition-fast);
-            }
-
-            .btn-action-toggle:hover {
-                background-color: var(--brand-primary-light);
-                border-color: var(--brand-primary);
-            }
-
-            .btn-action-toggle.active {
-                background-color: var(--brand-danger);
-                color: white;
-                border-color: var(--brand-danger);
-            }
-
-            /* QR Scanner Subsystem Container */
-            .scanner-viewport-wrapper {
-                display: none;
-                margin-bottom: 12px;
-                border: 1px solid var(--border-strong);
-                border-radius: var(--radius-md);
-                overflow: hidden;
-                background-color: #000000;
-                position: relative;
-            }
-
-            #qr-reader {
-                width: 100% !important;
-                border: none !important;
-            }
-
-            #qr-reader __video {
-                object-fit: cover !important;
-            }
-
-            .btn-submit {
-                width: 100%;
-                background-color: var(--brand-primary);
-                color: white;
-                border: none;
                 padding: 12px;
-                border-radius: var(--radius-md);
-                font-size: 0.9rem;
-                font-weight: 700;
-                cursor: pointer;
-                transition: var(--transition-fast);
             }
 
-            .btn-submit:hover {
-                background-color: #1d4ed8;
-            }
-
-            /* Form Controls for Billing Form */
-            label {
-                display: block;
-                font-size: 0.75rem;
-                font-weight: 700;
-                color: var(--text-secondary);
-                margin-top: 12px;
-                margin-bottom: 4px;
-                text-transform: uppercase;
-            }
-
-            .form-control {
-                width: 100%;
-                padding: 10px 14px;
-                border: 1px solid var(--border-strong);
-                border-radius: var(--radius-md);
-                font-size: 0.9rem;
-                background-color: var(--bg-surface);
-                outline: none;
-                transition: var(--transition-fast);
-            }
-
-            .form-control:focus {
-                border-color: var(--brand-primary);
-                background-color: var(--bg-card);
-            }
-
-            /* Table Configurations */
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 14px;
-                background: var(--bg-card);
-                border: 1px solid var(--border-strong);
-                border-radius: var(--radius-md);
-                overflow: hidden;
-            }
-
-            td {
+            .app-bar {
                 padding: 10px 12px;
-                font-size: 0.85rem;
-                border-bottom: 1px solid var(--border-subtle);
             }
 
-            td a {
-                color: var(--brand-primary);
-                text-decoration: none;
-                font-weight: 700;
+            .app-title {
+                font-size: 1rem;
             }
+        }
+    </style>
+</head>
 
-            /* Flash Message Alert Banners */
-            .alert-list {
-                list-style: none;
-                margin-bottom: 12px;
-            }
+<body>
 
-            .alert-item {
-                padding: 10px 12px;
-                border-radius: var(--radius-md);
-                font-size: 0.8rem;
-                font-weight: 600;
-                margin-bottom: 8px;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
-        </style>
-    </head>
+    <header class="app-bar">
+        <div class="nav-left">
+            <a class="btn-back" href="/shop_dashboard">Back</a>
+            <h1 class="app-title">Ramajayam Readymades</h1>
+        </div>
+        <div class="day-order-badge" id="currentDayOrder">Today's Session Feed</div>
+    </header>
 
-    <body>
+    <main class="dashboard-container">
 
-        <header class="app-bar">
-            <div class="nav-left">
-                <button class="btn-back" onclick="window.history.back();">← Back</button>
-                <h1 class="app-title">🛡️ Gate Sentinel</h1>
+        <aside class="left-column">
+            <div class="panel-card">
+                <h2 class="panel-title">Verification Engine</h2>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <ul class="alert-list">
+                    {% for category, message in messages %}
+                    <li class="alert-item"
+                        style="
+                            background-color: {% if category == 'success' %}#d1fae5{% elif category == 'danger' %} #fee2e2 {% else %} #f1f5f9 {% endif %};
+                            color: {% if category == 'success' %} #065f46 {% elif category == 'danger' %}#991b1b{% else %}#334155{% endif %};">
+                        {{ message }}
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                {% endwith %}
+
+                <form id="verificationForm" action="/verify_id" method="post">
+                    <div class="scanner-viewport-wrapper" id="scannerWrapper">
+                        <div id="qr-reader"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="input-with-action">
+                            <input type="number" name="product_id" id="product_id" class="form-input"
+                                placeholder="Scan or Type Pass ID..." autocomplete="off" required>
+                            <button type="button" class="btn-action-toggle" id="toggleScannerBtn"
+                                title="Scan QR Code with Camera">
+                                📷
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-submit">Verify Identity</button>
+                </form>
             </div>
-            <div class="day-order-badge" id="currentDayOrder">Today's Session Feed</div>
-        </header>
+        </aside>
 
-        <main class="dashboard-container">
+        <section class="right-column">
+            <h1>{{ next_bill_no }} hi</h1>
+            <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                <h2 class="panel-title" style="margin-bottom: 0;">Today's Verification Entries</h2>
+                <span id="liveCounter"
+                    style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); background: #e2e8f0; padding: 4px 10px; border-radius: 12px;">
+                    {{ selled_products|length }} Active
+                </span>
+            </div>
 
-            <aside class="left-column">
-                <div class="panel-card">
-                    <h2 class="panel-title">Verification Engine</h2>
+            <div style="font-size: 0.85rem; margin-bottom: 14px; color: var(--text-secondary);">
+                <strong>{{ selled_products|length }}</strong> total entries recorded for the day.
+            </div>
 
-                    {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                    <ul class="alert-list">
-                        {% for category, message in messages %}
-                        <li class="alert-item"
-                            style="
-                                background-color: {% if category == 'success' %}#d1fae5{% elif category == 'danger' %} #fee2e2 {% else %} #f1f5f9 {% endif %};
-                                color: {% if category == 'success' %} #065f46 {% elif category == 'danger' %}#991b1b{% else %}#334155{% endif %};">
-                            {{ message }}
-                        </li>
-                        {% endfor %}
-                    </ul>
-                    {% endif %}
-                    {% endwith %}
-
-                    
-                    <form id="verificationForm" action="/verify_id" method="post">
-                        <div class="scanner-viewport-wrapper" id="scannerWrapper">
-                            <div id="qr-reader"></div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="input-with-action">
-                                <input type="number" name="product_id" id="product_id" class="form-input"
-                                    placeholder="Scan or Type Pass ID..." autocomplete="off" required>
-                                <button type="button" class="btn-action-toggle" id="toggleScannerBtn"
-                                    title="Scan QR Code with Camera">
-                                    📷
-                                </button>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn-submit">Verify Identity</button>
-                    </form>
-                </div>
-            </aside>
-
-            <section class="right-column">
-                <h1>{{ next_bill_no }} hi</h1>
-                <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
-                    <h2 class="panel-title" style="margin-bottom: 0;">Today's Verification Entries</h2>
-                    <span id="liveCounter"
-                        style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); background: #e2e8f0; padding: 2px 8px; border-radius: 10px;">
-                        {{ selled_products|length }} Active
-                    </span>
-                </div>
-
-                <div style="font-size: 0.85rem; margin-bottom: 14px; color: var(--text-secondary);">
-                    <strong>{{ selled_products|length }}</strong> total entries recorded for the day.
-                </div>
-
+            <div class="table-responsive">
                 <table>
                     <thead>
                         <tr>
@@ -377,7 +434,6 @@
 
                         {% for p in products %}
                         {% set total_count.value = total_count.value + 1 %}
-
                         {% set total_selling_amount.value = total_selling_amount.value + p.product_selling_amount %}
 
                         <tr>
@@ -386,45 +442,37 @@
                             <td>
                                 {% if p.product_selling_amount != p.backup_product_selling_amount %}
                                 <s style="color: red;">₹{{ p.backup_product_selling_amount }}</s>
-                                <span style="color: green; font-weight: bold; margin-left: 10px;">₹{{ p.product_selling_amount }}</span>
-
+                                <span style="color: green; font-weight: bold; margin-left: 6px;">₹{{ p.product_selling_amount }}</span>
                                 {% else %}
                                 ₹{{ p.product_selling_amount }}
                                 {% endif %}
-
                             </td>
-
                             <td>
                                 {% if p.product_selling_amount == p.backup_product_selling_amount %}
                                 <a href="/discount_apply/{{ p.id }}">🏷️</a>
                                 {% if p.discount and p.discount > 0 %}
-                                <span style="color: blue; font-size: 0.85em;">({{ p.discount }}% )</span>
+                                <span style="color: blue; font-size: 0.85em;">({{ p.discount }}%)</span>
                                 {% endif %}
                                 {% else %}
-                                <span style="color: green; font-weight: bold;"><a
-                                        href="/discount_remove/{{ p.id }}">💵  <span style="color: blue; font-size: 0.85em;">(0%)</span> </a></span>
+                                <span style="color: green; font-weight: bold;">
+                                    <a href="/discount_remove/{{ p.id }}">💵 <span style="color: blue; font-size: 0.85em;">(0%)</span></a>
+                                </span>
                                 {% endif %}
                                 <a href="/clear_product/{{ p.id }}">⚠️</a>
-                            
-
                             </td>
-                        
                         </tr>
                         {% endfor %}
                     </tbody>
 
                     <tfoot style="background-color: #f9f9f9; font-weight: bold; border-top: 2px solid #ccc;">
                         <tr>
-                            <td>Total Products: {{ total_count.value }}</td>
-
-
-                            <td>Overall Summary:</td>
+                            <td>Total: {{ total_count.value }}</td>
+                            <td>Summary:</td>
                             <td>
                                 <div id="summary-price-container" data-base-total="{{ total_selling_amount.value }}">
                                     <s id="total-crossed" style="color: red; display: none;">₹{{ total_selling_amount.value }}</s>
                                     <span id="final-total-display" style="color: black;">₹{{ total_selling_amount.value }}</span>
-                                    <span id="manual-text-label"
-                                        style="display: none; color: darkgreen; font-size: 0.85em; margin-top: 4px;"></span>
+                                    <span id="manual-text-label" style="display: none; color: darkgreen; font-size: 0.85em; margin-top: 4px;"></span>
                                 </div>
                             </td>
                             <td>
@@ -434,199 +482,228 @@
 
                         <tr style="background-color: #f1f3f5; border-top: 1px dashed #bbb;">
                             <td colspan="2" style="text-align: right; vertical-align: middle;">
-                                Add Optional Discount?
-                                <select id="discount-toggle" onchange="toggleDiscountInput()"
-                                    style="padding: 4px; margin-left: 10px;">
+                                Add Discount?
+                                <select id="discount-toggle" onchange="toggleDiscountInput()" style="padding: 6px; margin-left: 8px; border-radius: 4px; border: 1px solid var(--border-strong);">
                                     <option value="no">No</option>
                                     <option value="yes">Yes</option>
                                 </select>
                             </td>
                             <td colspan="2" style="vertical-align: middle;">
-                                <div id="input-container" style="display: none; align-items: center; gap: 8px;">
-                                    <input type="number" name="manual-percentage" id="manual-percentage" min="1" max="100" placeholder="Enter %"
+                                <div id="input-container" style="display: none; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                    <input type="number" name="manual-percentage" id="manual-percentage" min="1" max="100" placeholder="%"
                                         onkeyup="calculateManualDiscount()" oninput="calculateManualDiscount()"
-                                        style="width: 80px; padding: 4px 6px; border: 1px solid #aaa; border-radius: 4px;">
-                                    <span style="font-size: 0.9em; font-weight: normal; color: #666;">% reduction on total selling amount</span>
+                                        style="width: 70px; padding: 6px; border: 1px solid #aaa; border-radius: 4px;">
+                                    <span style="font-size: 0.8em; font-weight: normal; color: #666;">% off total</span>
                                 </div>
                             </td>
                         </tr>
                     </tfoot>
                 </table>
+            </div>
 
-                <form method="POST" action="{{ url_for('new_billing') }}" style="margin-top: 20px;">
-                    <table style="border: 1px solid var(--border-strong); background: var(--bg-card); width: 100%;">
-                        <tr>
-                            <td style="padding: 12px; border: none;">
-                                <label for="customer_phone_number">Customer Phone Number</label>
-                                <input type="text" id="customer_phone_number" name="customer_phone_number"
-                                    class="form-control" placeholder="Enter phone..." required>
-                            </td>
-                            <td style="padding: 12px; border: none;">
-                                <label for="customer_name">Customer Name</label>
-                                <input type="text" id="customer_name" name="customer_name" class="form-control"
-                                    placeholder="Customer name..." required>
-                            </td>
-                            <td style="padding: 12px; border: none;">
-                                <label for="customer_address">Customer Address</label>
-                                <textarea id="customer_address" name="customer_address" class="form-control" rows="1"
-                                    placeholder="Delivery destination address..." style="resize: vertical;"
-                                    required></textarea>
-                            </td>
-                        </tr>
-                    </table>
+            <form method="POST" action="{{ url_for('new_billing') }}" style="margin-top: 20px;">
+                <div class="billing-grid">
+                    <div>
+                        <label for="customer_phone_number">Customer Phone Number</label>
+                        <input type="text" id="customer_phone_number" name="customer_phone_number"
+                            class="form-control" placeholder="Enter phone..." required>
+                    </div>
+                    <div>
+                        <label for="customer_name">Customer Name</label>
+                        <input type="text" id="customer_name" name="customer_name" class="form-control"
+                            placeholder="Customer name..." required>
+                    </div>
+                    <div>
+                        <label for="customer_address">Customer Address</label>
+                        <textarea id="customer_address" name="customer_address" class="form-control" rows="1"
+                            placeholder="Delivery destination address..." style="resize: vertical;" required></textarea>
+                    </div>
+                </div>
 
-                    <input type="hidden" name="total_selling_count" value="{{ total_count.value }}">
-                    <input type="hidden" name="total_selling_amount" value="{{ total_selling_amount.value }}">
-                    <input type="hidden" name="manual-percentage" id="hidden_manual_percentage" value="0">
-                    <button type="submit" class="btn-submit" style="margin-top: 12px;">Submit Billing</button>
-                </form>
-            </section>
-        </main>
+                <input type="hidden" name="total_selling_count" value="{{ total_count.value }}">
+                <input type="hidden" name="total_selling_amount" value="{{ total_selling_amount.value }}">
+                <input type="hidden" name="manual-percentage" id="hidden_manual_percentage" value="0">
+                <button type="submit" class="btn-submit" style="margin-top: 12px;">Submit Billing</button>
+            </form>
+        </section>
+    </main>
 
-        <script>
-            let html5QrcodeScanner = null;
-            const scannerWrapper = document.getElementById('scannerWrapper');
-            const toggleScannerBtn = document.getElementById('toggleScannerBtn');
-            const productIdInput = document.getElementById('product_id');
-            const verificationForm = document.getElementById('verificationForm');
+    <script>
+        let html5QrcodeScanner = null;
+        const scannerWrapper = document.getElementById('scannerWrapper');
+        const toggleScannerBtn = document.getElementById('toggleScannerBtn');
+        const productIdInput = document.getElementById('product_id');
+        const verificationForm = document.getElementById('verificationForm');
 
-            // Toggle logic for opening and closing camera stream
-            toggleScannerBtn.addEventListener('click', () => {
-                if (scannerWrapper.style.display === 'none' || scannerWrapper.style.display === '') {
-                    startScanner();
-                } else {
-                    stopScanner();
-                }
-            });
+        // 🔊 Web Audio API Sound Synthesizer for POS / QR Scanner Beep
+        function playBeep() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                
+                const audioCtx = new AudioContext();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
 
-            function startScanner() {
-                scannerWrapper.style.display = 'block';
-                toggleScannerBtn.classList.add('active');
-                toggleScannerBtn.innerText = '✕'; // Change camera icon to an exit cross
-                toggleScannerBtn.title = "Stop Scanner";
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(1800, audioCtx.currentTime); // 1800Hz high-pitched scanner frequency
+                
+                gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.12); // Short 120ms sound pulse
 
-                html5QrcodeScanner = new Html5Qrcode("qr-reader");
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
 
-                const config = {
-                    fps: 15,
-                    qrbox: (width, height) => {
-                        const size = Math.min(width, height) * 0.7;
-                        return { width: size, height: size };
-                    }
-                };
-
-                html5QrcodeScanner.start(
-                    { facingMode: "environment" },
-                    config,
-                    onScanSuccess,
-                    onScanFailure
-                ).catch(err => {
-                    console.error("Camera access failed:", err);
-                    alert("Could not access system camera hardware. Check system permissions.");
-                    stopScanner();
-                });
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.12);
+            } catch (e) {
+                console.warn("Audio playback not allowed or supported on this device.", e);
             }
+        }
 
-            function stopScanner() {
-                if (html5QrcodeScanner) {
-                    html5QrcodeScanner.stop().then(() => {
-                        html5QrcodeScanner = null;
-                        clearScannerUI();
-                    }).catch(err => {
-                        console.error("Failed to cleanly kill camera track stream:", err);
-                        clearScannerUI();
-                    });
-                } else {
+        // Toggle logic for opening and closing camera stream
+        toggleScannerBtn.addEventListener('click', () => {
+            if (scannerWrapper.style.display === 'none' || scannerWrapper.style.display === '') {
+                startScanner();
+            } else {
+                stopScanner();
+            }
+        });
+
+        function startScanner() {
+            scannerWrapper.style.display = 'block';
+            toggleScannerBtn.classList.add('active');
+            toggleScannerBtn.innerText = '✕';
+            toggleScannerBtn.title = "Stop Scanner";
+
+            html5QrcodeScanner = new Html5Qrcode("qr-reader");
+
+            const config = {
+                fps: 15,
+                qrbox: (width, height) => {
+                    const size = Math.min(width, height) * 0.7;
+                    return { width: size, height: size };
+                }
+            };
+
+            html5QrcodeScanner.start(
+                { facingMode: "environment" },
+                config,
+                onScanSuccess,
+                onScanFailure
+            ).catch(err => {
+                console.error("Camera access failed:", err);
+                alert("Could not access system camera hardware. Check system permissions.");
+                stopScanner();
+            });
+        }
+
+        function stopScanner() {
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.stop().then(() => {
+                    html5QrcodeScanner = null;
                     clearScannerUI();
-                }
+                }).catch(err => {
+                    console.error("Failed to cleanly kill camera track stream:", err);
+                    clearScannerUI();
+                });
+            } else {
+                clearScannerUI();
             }
+        }
 
-            function clearScannerUI() {
-                scannerWrapper.style.display = 'none';
-                toggleScannerBtn.classList.remove('active');
-                toggleScannerBtn.innerText = '📷';
-                toggleScannerBtn.title = "Scan QR Code with Camera";
-            }
+        function clearScannerUI() {
+            scannerWrapper.style.display = 'none';
+            toggleScannerBtn.classList.remove('active');
+            toggleScannerBtn.innerText = '📷';
+            toggleScannerBtn.title = "Scan QR Code with Camera";
+        }
 
-            function onScanSuccess(decodedText, decodedResult) {
-                const parsedId = decodedText.replace(/\D/g, '');
+        function onScanSuccess(decodedText, decodedResult) {
+            const parsedId = decodedText.replace(/\D/g, '');
 
-                if (parsedId) {
-                    productIdInput.value = parsedId;
-                    stopScanner();
+            if (parsedId) {
+                playBeep(); // 🔔 Play scan success feedback audio
+                productIdInput.value = parsedId;
+                stopScanner();
+                
+                // Short delay before submitting form to ensure sound plays
+                setTimeout(() => {
                     verificationForm.submit();
-                } else {
-                    alert("Scanned non-numeric payload: " + decodedText + ". A valid numeric Pass ID is required.");
-                }
+                }, 150);
+            } else {
+                alert("Scanned non-numeric payload: " + decodedText + ". A valid numeric Pass ID is required.");
             }
+        }
 
-            function onScanFailure(error) {
-                // Drop sequential check frame array evaluation logs silently
+        function onScanFailure(error) {
+            // Drop sequential check frame array evaluation logs silently
+        }
+
+        // Trigger beep on manual entry form submit
+        verificationForm.addEventListener('submit', function (e) {
+            if (productIdInput.value.trim() !== '') {
+                playBeep();
             }
+        });
 
-            // Live API Look-up Operations (Fixed & Cleaned up)
-            document.getElementById('customer_phone_number').addEventListener('blur', function () {
-                const phoneNo = this.value.trim();
+        // Live API Look-up Operations
+        document.getElementById('customer_phone_number').addEventListener('blur', function () {
+            const phoneNo = this.value.trim();
 
-                // Only search if the user typed an adequate number of characters
-                if (phoneNo.length >= 10) {
-                    fetch(`/search_contact/${phoneNo}`)
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Customer not found');
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            if (data.success) {
-                                // Autofill fields cleanly with database response values
-                                document.getElementById('customer_name').value = data.customer_name;
-                                document.getElementById('customer_address').value = data.customer_address;
-                            }
-                        })
-                        .catch(error => {
-                            console.log("Lookup notification:", error.message);
-
-                        });
-                }
-            });
-
-            function toggleDiscountInput() {
-                const selector = document.getElementById('discount-toggle').value;
-                const inputContainer = document.getElementById('input-container');
-                const percentInput = document.getElementById('manual-percentage');
-
-                if (selector === 'yes') {
-                    inputContainer.style.display = 'flex';
-                    percentInput.focus();
-                } else {
-                    inputContainer.style.display = 'none';
-                    percentInput.value = '';
-                    calculateManualDiscount();
-                }
+            if (phoneNo.length >= 10) {
+                fetch(`/search_contact/${phoneNo}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Customer not found');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById('customer_name').value = data.customer_name;
+                            document.getElementById('customer_address').value = data.customer_address;
+                        }
+                    })
+                    .catch(error => {
+                        console.log("Lookup notification:", error.message);
+                    });
             }
+        });
 
-            function calculateManualDiscount() {
-                const container = document.getElementById('summary-price-container');
-                const baseTotal = parseFloat(container.getAttribute('data-base-total'));
-                const percentValue = parseFloat(document.getElementById('manual-percentage').value);
+        function toggleDiscountInput() {
+            const selector = document.getElementById('discount-toggle').value;
+            const inputContainer = document.getElementById('input-container');
+            const percentInput = document.getElementById('manual-percentage');
 
-                const crossedElement = document.getElementById('total-crossed');
-                const displayElement = document.getElementById('final-total-display');
-                const labelElement = document.getElementById('manual-text-label');
+            if (selector === 'yes') {
+                inputContainer.style.display = 'flex';
+                percentInput.focus();
+            } else {
+                inputContainer.style.display = 'none';
+                percentInput.value = '';
+                calculateManualDiscount();
+            }
+        }
 
-                // Select the hidden inputs inside the form
-                const hiddenTotalInput = document.getElementById('total_selling_amount');
-                const hiddenDiscountInput = document.getElementById('hidden_manual_percentage');
+        function calculateManualDiscount() {
+            const container = document.getElementById('summary-price-container');
+            const baseTotal = parseFloat(container.getAttribute('data-base-total'));
+            const percentValue = parseFloat(document.getElementById('manual-percentage').value);
 
-            // If input is empty, invalid, or zero
-                if (isNaN(percentValue) || percentValue <= 0 || percentValue > 100) {
+            const crossedElement = document.getElementById('total-crossed');
+            const displayElement = document.getElementById('final-total-display');
+            const labelElement = document.getElementById('manual-text-label');
+
+            const hiddenTotalInput = document.getElementsByName('total_selling_amount')[0];
+            const hiddenDiscountInput = document.getElementById('hidden_manual_percentage');
+
+            if (isNaN(percentValue) || percentValue <= 0 || percentValue > 100) {
                 crossedElement.style.display = 'none';
                 displayElement.style.color = 'black';
                 displayElement.innerText = '₹' + baseTotal;
                 labelElement.style.display = 'none';
 
-                // Reset hidden form values to default
                 if (hiddenTotalInput) hiddenTotalInput.value = baseTotal;
                 if (hiddenDiscountInput) hiddenDiscountInput.value = 0;
                 return;
@@ -635,7 +712,6 @@
             const discountAmount = (baseTotal * percentValue) / 100;
             const reductionTotal = Math.round(baseTotal - discountAmount);
 
-            // Update screen display
             crossedElement.style.display = 'inline';
             displayElement.style.color = 'green';
             displayElement.innerText = '₹' + reductionTotal;
@@ -643,12 +719,11 @@
             labelElement.style.display = 'block';
             labelElement.innerText = `(Manual ${percentValue}% Reduction Applied)`;
 
-            // Sync values into the hidden form inputs
             if (hiddenTotalInput) hiddenTotalInput.value = reductionTotal;
             if (hiddenDiscountInput) hiddenDiscountInput.value = percentValue;
-}
-        </script>
+        }
+    </script>
 
-    </body>
+</body>
 
-    </html>
+</html>
