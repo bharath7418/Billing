@@ -84,7 +84,7 @@ class SelledProduct(db.Model) :
 class Customer(db.Model) :
     id = db.Column(db.Integer,primary_key=True)
     customer_name = db.Column(db.String(100))
-    customer_phone_number = db.Column(db.String(10))
+    customer_phone_number = db.Column(db.String(10),unique=True)
     customer_address = db.Column(db.String(200))
     __tablename__ = 'customer'
     

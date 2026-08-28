@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Thermal Sticker Generator</title>
+    <title>Dynamic Thermal Sticker Generator (CM-Based)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts & Icons -->
@@ -38,6 +38,7 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.08);
             transition: width 0.2s ease, min-height 0.2s ease;
             box-sizing: border-box;
+            overflow: hidden;
         }
 
         .qr-card.hidden {
@@ -59,7 +60,7 @@
             body.print-combined-sheet .qr-grid {
                 display: flex !important;
                 flex-wrap: wrap !important;
-                gap: 8px !important;
+                gap: 4mm !important;
                 justify-content: flex-start !important;
             }
 
@@ -77,7 +78,7 @@
             body.print-individual-roll .sticker-card {
                 box-shadow: none !important;
                 border: 1.5px solid #000000 !important;
-                margin: 0 auto 10px auto !important;
+                margin: 0 auto 5mm auto !important;
                 page-break-after: always !important;
                 page-break-inside: avoid !important;
             }
@@ -89,33 +90,33 @@
     <!-- TOP CONTROL PANEL: SEARCH, ALL FILTERS & STICKER SIZING (NO-PRINT) -->
     <div class="no-print bg-white p-5 rounded-lg border border-gray-300 shadow-md mb-6 max-w-7xl mx-auto">
         <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <span class="material-symbols-outlined">settings_suggest</span> Thermal Sticker Filter & Print Options
+            <span class="material-symbols-outlined">settings_suggest</span> Thermal Sticker Filter & CM Print Options
         </h2>
 
         <!-- FILTER & SIZE CONTROLS GRID -->
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
             
-            <!-- STICKER PRESET SIZE SELECTOR -->
+            <!-- STICKER PRESET SIZE SELECTOR (CM BASED) -->
             <div class="flex flex-col">
-                <label for="stickerPreset" class="text-[11px] font-bold text-gray-600 uppercase mb-1">Size Preset</label>
+                <label for="stickerPreset" class="text-[11px] font-bold text-gray-600 uppercase mb-1">Size Preset (CM)</label>
                 <select id="stickerPreset" onchange="applyPresetSize(this.value)" class="p-2 border border-gray-300 rounded text-xs bg-gray-50 focus:ring-2 focus:ring-black">
-                    <option value="50x30">50mm × 30mm</option>
-                    <option value="58x40">58mm × 40mm</option>
-                    <option value="80x50" selected>80mm × 50mm</option>
-                    <option value="100x150">100mm × 150mm</option>
-                    <option value="custom">Custom...</option>
+                    <option value="5x4" selected>5 cm W × 4 cm H (Preferred)</option>
+                    <option value="5x3">5 cm W × 3 cm H</option>
+                    <option value="8x5">8 cm W × 5 cm H</option>
+                    <option value="10x15">10 cm W × 15 cm H</option>
+                    <option value="custom">Custom (CM)...</option>
                 </select>
             </div>
 
-            <!-- CUSTOM DIMENSIONS (MM) -->
+            <!-- CUSTOM DIMENSIONS (CM) -->
             <div class="flex flex-col">
-                <label for="customWidth" class="text-[11px] font-bold text-gray-600 uppercase mb-1">Width (mm)</label>
-                <input type="number" id="customWidth" value="80" oninput="updateCustomSize()" class="p-2 border border-gray-300 rounded text-xs">
+                <label for="customWidth" class="text-[11px] font-bold text-gray-600 uppercase mb-1">Width (cm)</label>
+                <input type="number" id="customWidth" value="5" step="0.1" oninput="updateCustomSize()" class="p-2 border border-gray-300 rounded text-xs">
             </div>
 
             <div class="flex flex-col">
-                <label for="customHeight" class="text-[11px] font-bold text-gray-600 uppercase mb-1">Min Height (mm)</label>
-                <input type="number" id="customHeight" value="50" oninput="updateCustomSize()" class="p-2 border border-gray-300 rounded text-xs">
+                <label for="customHeight" class="text-[11px] font-bold text-gray-600 uppercase mb-1">Min Height (cm)</label>
+                <input type="number" id="customHeight" value="4" step="0.1" oninput="updateCustomSize()" class="p-2 border border-gray-300 rounded text-xs">
             </div>
 
             <!-- SEARCH FILTER -->
@@ -163,8 +164,8 @@
             <div class="flex flex-col sm:col-span-2">
                 <label for="printLayoutMode" class="text-[11px] font-bold text-gray-600 uppercase mb-1">Print Layout Format</label>
                 <select id="printLayoutMode" onchange="togglePrintLayout(this.value)" class="p-2 border border-black font-bold rounded text-xs bg-yellow-50 focus:ring-2 focus:ring-black">
-                    <option value="combined" selected>Combined Sheet (All QR codes on 1 page/grid)</option>
-                    <option value="individual">Separate Pages (1 QR code per thermal roll page)</option>
+                    <option value="combined" selected>Combined Sheet (Grid View)</option>
+                    <option value="individual">Separate Pages (Thermal Roll Page per Item)</option>
                 </select>
             </div>
         </div>
@@ -174,7 +175,7 @@
             <div class="flex gap-2">
                 <button onclick="resetFilters()" class="px-4 py-2 bg-gray-600 text-white font-bold rounded text-xs hover:bg-gray-700">Reset All Filters</button>
                 <button onclick="window.print()" class="px-4 py-2 bg-black text-white font-bold rounded text-xs flex items-center gap-1 hover:bg-gray-800">
-                    <span class="material-symbols-outlined text-sm">print</span> Print QR Sheet
+                    <span class="material-symbols-outlined text-sm">print</span> Print Sticker Sheet
                 </button>
             </div>
             <span class="text-xs font-semibold text-gray-600" id="resultsCount">Showing all items</span>
@@ -182,9 +183,9 @@
     </div>
 
     <!-- DYNAMIC STICKERS CONTAINER GRID -->
-    <div class="qr-grid flex flex-wrap justify-center gap-4" id="qrGrid">
+    <div class="qr-grid flex flex-wrap justify-center gap-3" id="qrGrid">
         {% for item in qr_list %}
-            <div class="qr-card sticker-card p-3 flex flex-col justify-between text-black relative bg-white"
+            <div class="qr-card sticker-card p-2 flex flex-col justify-between text-black relative bg-white"
                  data-name="{{ item.product.product_name|default('', true)|lower }}"
                  data-id="{{ item.product.product_id|default('', true)|lower }}"
                  data-status="{{ item.product.status|default('active', true)|lower }}"
@@ -192,64 +193,63 @@
                  data-price="{{ item.product.product_selling_amount|default(0, true) }}"
                  data-entrydate="{{ item.product.product_entry_date|default('', true) }}">
 
-                <!-- HEADER SECTION MATCHING IMAGE EXACTLY -->
-                <div class="border-b border-black pb-1.5">
+                <!-- HEADER SECTION -->
+                <div class="border-b border-black pb-1">
                     <div class="flex justify-between items-start">
-                        <div>
+                        <div class="overflow-hidden">
                             {% for s in shop %}
-                                <h1 class="font-black text-xl uppercase tracking-tighter leading-none">{{ s.shop_name }}</h1>
-                                <h2 class="font-bold text-xs leading-tight mt-0.5" style="font-family: serif;">Tailors & Readymades</h2>
-                                <p class="text-[9px] font-semibold leading-tight text-gray-800 mt-0.5">
+                                <h1 class="font-black text-xs uppercase tracking-tighter leading-none truncate">{{ s.shop_name }}</h1>
+                                <h2 class="font-bold text-[9px] leading-tight" style="font-family: serif;">Tailors & Readymades</h2>
+                                <p class="text-[7.5px] font-semibold leading-tight text-gray-800 truncate">
                                     {{ s.shop_location }}
                                 </p>
                             {% else %}
-                                <h1 class="font-black text-xl uppercase tracking-tighter leading-none">RAMAJAYAM</h1>
-                                <h2 class="font-bold text-xs leading-tight mt-0.5" style="font-family: serif;">Tailors & Readymades</h2>
-                                <p class="text-[9px] font-semibold leading-tight text-gray-800 mt-0.5">
-                                    Bypass Road, Pernamallur. Vandavasi Tk, Tiruvannamalai<br>District - 604 503.
+                                <h1 class="font-black text-xs uppercase tracking-tighter leading-none truncate">RAMAJAYAM</h1>
+                                <h2 class="font-bold text-[9px] leading-tight" style="font-family: serif;">Tailors & Readymades</h2>
+                                <p class="text-[7.5px] font-semibold leading-tight text-gray-800 truncate">
+                                    Bypass Road, Pernamallur.
                                 </p>
                             {% endfor %}
                         </div>
 
-                        <div class="flex flex-col items-end justify-between self-stretch">
-                            <span class="font-bold text-xs mono whitespace-nowrap">Cell : 9364290146</span>
-                            <span class="sno-badge text-[10px] px-1.5 py-0.2 font-extrabold rounded-sm">#{{ loop.index }}</span>
+                        <div class="flex flex-col items-end justify-between self-stretch shrink-0 pl-1">
+                            <span class="font-bold text-[8px] mono whitespace-nowrap">Ph: 9364290146</span>
+                            <span class="sno-badge text-[8px] px-1 py-0 font-extrabold rounded-sm">#{{ loop.index }}</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- MAIN BODY & QR SECTION -->
-                <div class="flex items-stretch justify-between gap-2 pt-2 pb-1 h-full">
+                <div class="flex items-center justify-between gap-1 pt-1 h-full min-h-0">
                     <!-- LEFT COLUMN DETAILS -->
-                    <div class="flex flex-col justify-between flex-1 py-0.5 min-w-0">
-                        <!-- STATUS BADGE -->
+                    <div class="flex flex-col justify-between flex-1 min-w-0 py-0.5 h-full">
                         <div>
-                            <span class="inline-block text-[10px] font-bold uppercase border-1.5 border-black px-2 py-0.5 rounded-md tracking-wider">
+                            <span class="inline-block text-[7.5px] font-bold uppercase border border-black px-1 py-0 rounded tracking-tight">
                                 {{ item.product.status|default('ACTIVE', true) }}
                             </span>
                         </div>
 
                         <!-- PRODUCT DETAILS -->
-                        <div class="my-1">
-                            <p class="text-[11px] font-bold text-gray-900 leading-tight">Product Name :</p>
-                            <p class="font-black text-xs uppercase truncate leading-tight mt-0.5">
+                        <div class="my-0.5">
+                            <p class="text-[8px] font-bold text-gray-800 leading-none">Item:</p>
+                            <p class="font-black text-[9.5px] uppercase truncate leading-tight mt-0.5">
                                 {{ item.product.product_name if item.product.product_name else 'Product Value' }}
                             </p>
-                            <p class="text-xs font-bold mt-1 leading-tight">
-                                ID: <span class="mono text-sm font-bold tracking-tight">{{ item.product.product_id|default('100', true) }}</span>
+                            <p class="text-[8px] font-bold leading-none mt-0.5 truncate">
+                                ID: <span class="mono text-[9px] font-bold tracking-tight">{{ item.product.product_id|default('100', true) }}</span>
                             </p>
                         </div>
 
                         <!-- PRICE -->
                         <div>
-                            <p class="text-sm font-black uppercase tracking-tight">
-                                PRICE: <span class="mono text-2xl font-normal ml-1">Rs.{{ item.product.product_selling_amount|default('580', true) }}</span>
+                            <p class="text-[9px] font-black uppercase tracking-tight leading-none">
+                                PRICE: <span class="mono text-xs font-bold">Rs.{{ item.product.product_selling_amount|default('580', true) }}</span>
                             </p>
                         </div>
                     </div>
 
-                    <!-- RIGHT COLUMN: LARGE QR CODE -->
-                    <div class="w-32 h-32 flex-shrink-0 border-1.5 border-black p-1 bg-white flex items-center justify-center self-center">
+                    <!-- RIGHT COLUMN: dynamic fit QR CODE -->
+                    <div class="w-16 h-16 sm:w-20 sm:h-20 shrink-0 border border-black p-0.5 bg-white flex items-center justify-center self-center">
                         <img src="data:image/png;base64,{{ item.qr_code }}" alt="QR Code" class="w-full h-full object-contain">
                     </div>
                 </div>
@@ -261,7 +261,7 @@
         {% endfor %}
     </div>
 
-    <!-- SCRIPT FOR FILTERING, PRINT LAYOUT, AND SIZING -->
+    <!-- SCRIPT FOR FILTERING, PRINT LAYOUT, AND CM SIZING -->
     <script>
         // 1. PRINT LAYOUT TOGGLE
         function togglePrintLayout(mode) {
@@ -274,12 +274,12 @@
             }
         }
 
-        // 2. STICKER DIMENSION CONTROL
-        function setStickerDimensions(widthMm, heightMm) {
+        // 2. STICKER DIMENSION CONTROL (IN CENTIMETERS)
+        function setStickerDimensions(widthCm, heightCm) {
             const cards = document.querySelectorAll('.sticker-card');
             cards.forEach(card => {
-                card.style.width = widthMm + 'mm';
-                card.style.minHeight = heightMm + 'mm';
+                card.style.width = widthCm + 'cm';
+                card.style.minHeight = heightCm + 'cm';
             });
         }
 
@@ -287,22 +287,22 @@
             const customW = document.getElementById('customWidth');
             const customH = document.getElementById('customHeight');
 
-            if (preset === '50x30') {
-                customW.value = 50; customH.value = 30;
-            } else if (preset === '58x40') {
-                customW.value = 58; customH.value = 40;
-            } else if (preset === '80x50') {
-                customW.value = 80; customH.value = 50;
-            } else if (preset === '100x150') {
-                customW.value = 100; customH.value = 150;
+            if (preset === '5x4') {
+                customW.value = 5; customH.value = 4;
+            } else if (preset === '5x3') {
+                customW.value = 5; customH.value = 3;
+            } else if (preset === '8x5') {
+                customW.value = 8; customH.value = 5;
+            } else if (preset === '10x15') {
+                customW.value = 10; customH.value = 15;
             }
             
             updateCustomSize();
         }
 
         function updateCustomSize() {
-            const width = parseFloat(document.getElementById('customWidth').value) || 80;
-            const height = parseFloat(document.getElementById('customHeight').value) || 50;
+            const width = parseFloat(document.getElementById('customWidth').value) || 5;
+            const height = parseFloat(document.getElementById('customHeight').value) || 4;
             setStickerDimensions(width, height);
         }
 
@@ -350,11 +350,11 @@
             document.getElementById('filterMinPrice').value = '';
             document.getElementById('filterMaxPrice').value = '';
             document.getElementById('filterEntryDate').value = '';
-            document.getElementById('stickerPreset').value = '80x50';
+            document.getElementById('stickerPreset').value = '5x4';
             document.getElementById('printLayoutMode').value = 'combined';
             
             togglePrintLayout('combined');
-            applyPresetSize('80x50');
+            applyPresetSize('5x4');
             applyFilters();
         }
 
@@ -366,7 +366,7 @@
 
         // Initialize sizing on page load
         window.addEventListener('DOMContentLoaded', () => {
-            updateCustomSize();
+            applyPresetSize('5x4');
             togglePrintLayout('combined');
         });
     </script>
