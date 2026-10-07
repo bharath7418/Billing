@@ -290,10 +290,42 @@ def temp_product() :
         name = request.form.get('product_name')
         serial = request.form.get('product_id')
         amount = request.form.get('product_amount')
-        
-    
-    
 
+        temp = Product(
+            product_name = name,
+            product_id = serial,
+            product_selling_amount = amount,
+            product_raw_amount = transform_serial(serial),
+            backup_product_selling_amount = amount,
+            backup_product_raw_amount = transform_serial(serial),
+            discount = 0,
+            product_location = "Ramajayam Readymades",
+            product_entry_date=datetime.utcnow(),
+            product_exit_date=datetime.utcnow(),
+            status = "scanned"
+        )
+        db.session.add(temp)
+        db.session.commit()
+    
+        add_product = SelledProduct(
+                selled_product_name=name,
+                selled_product_id=serial,
+            )
+        db.session.add(add_product)
+        db.session.commit()
+    return redirect(url_for('new_billing'))
+
+def transform_serial(serial):
+    """
+    Takes a 6-digit string/integer (e.g. "920051"), extracts middle digits ("005"),
+    reverses them ("500"), and returns an integer (500).
+    """
+    if serial and len(str(serial)) == 6:
+        extracted = str(serial)[2:5]  # "920051" -> "005"
+        reversed_str = extracted[::-1] # "005" -> "500"
+        return int(reversed_str)      # "500" -> 500 (Integer)
+    
+    return None
 
 @app.route('/whatsapp_bill/<int:billing_id>')
 def whatsapp_bill(billing_id):
