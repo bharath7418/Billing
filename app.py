@@ -283,7 +283,15 @@ def bill_show_page(billing_id):
 def temp_product() :
     if request.method == 'POST' :
         name = request.form.get('product_name')
+        serial = request.form.get('product_id')
         amount = request.form.get('product_amount')
+        temp_product = Product(
+            
+        )
+        
+        db.session(temp_product)
+        db.session.commit()     
+        return redirect(url_for('new_billing')) 
         
     
     
