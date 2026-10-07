@@ -329,6 +329,8 @@
             <!-- Summary Section -->
             <div class="summary-section">
                 {% if billing.applies_discount_amount > 0 and billing.billing_amount - billing.applies_discount_amount==100 %}
+                    Total Amount {{ billing.billing_amount }}
+                    Total Save Amount  {{ billing.billing_amount }} - {{ billing.applies_discount_amount }}
                     <div class="summary-row">
                         <span>Total Bill Amount</span>
                         <span>{{ billing.billing_amount }}</span>
@@ -343,11 +345,14 @@
                     </div>
                 {% else %}
                     <div class="summary-row total">
+                        Total Amount {{ billing.billing_amount }} <br>
+                    Total Save Amount {{ billing.billing_amount }} - {{ billing.applies_discount_amount }} <br>
                         <span>Final Amount</span>
                         <span>Rs.{{ billing.applies_discount_amount }} </span>
                     </div>
                 {% endif %}
             </div>
+            
         </div>
 
         <!-- Bottom Navigation -->

@@ -97,6 +97,10 @@ class Billing(db.Model) :
     billing_amount = db.Column(db.Integer)
     applies_discount = db.Column(db.Integer, default=0)  # New field to indicate if a discount was applied
     applies_discount_amount = db.Column(db.Integer, default=0)
+    overall_discount_amount = db.Column(
+        db.Integer,
+        db.Computed("billing_amount - applies_discount_amount")
+    )
     total_quantity = db.Column(db.Integer)
     billing_date = db.Column(db.DateTime, default=datetime.utcnow)
     billing_products = db.relationship('SelledProduct', backref='billing', lazy=True)
@@ -279,19 +283,13 @@ def bill_show_page(billing_id):
     return render_template('bill_show_page.html', billing=billing,selled=selled,shop=shop,products=products)
 
 
+
 @app.route("/temp_product",methods=['GET','POST'])
 def temp_product() :
     if request.method == 'POST' :
         name = request.form.get('product_name')
         serial = request.form.get('product_id')
         amount = request.form.get('product_amount')
-        temp_product = Product(
-            
-        )
-        
-        db.session(temp_product)
-        db.session.commit()     
-        return redirect(url_for('new_billing')) 
         
     
     
@@ -384,7 +382,6 @@ def clear_product(id):
     product_name = product.product_name
     flash(f"Removed the {product_name} !", "success")
     return redirect(url_for('new_billing'))
-
 
 # ==============================
 # Bulk Upload Route
@@ -622,7 +619,6 @@ def qr_code_page():
         qr_list.append({"product": product, "qr_code": qr_base64})
 
     return render_template("qr_code.html", qr_list=qr_list,shop=shop)
-
 
 @app.route('/logout')
 def logout():
