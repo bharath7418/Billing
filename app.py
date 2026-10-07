@@ -51,18 +51,18 @@ class ShopDealer(UserMixin,db.Model) :
     
 class Product(db.Model) :
     id = db.Column(db.Integer,primary_key=True)
-    billing_id = db.Column(db.Integer, db.ForeignKey('billing.id'), nullable=True,default=0)
+    billing_id = db.Column(db.Integer, db.ForeignKey('billing.id'), nullable=True)
     product_name = db.Column(db.String(100))
-    product_id = db.Column(db.String(100))
+    product_id = db.Column(db.String(100), nullable=True)
     product_selling_amount = db.Column(db.Integer)
-    product_raw_amount = db.Column(db.Integer) 
-    backup_product_selling_amount = db.Column(db.Integer, default=None)  # New field to store the original selling amount for discount restoration
-    backup_product_raw_amount = db.Column(db.Integer, default=None)  # New field to store the original raw amount for discount restoration
-    discount = db.Column(db.Integer)
-    product_location = db.Column(db.String(100))
-    product_entry_date = db.Column(db.String(100))
-    product_exit_date = db.Column(db.DateTime, default=None)
-    customer_phone_number = db.Column(db.String(10), db.ForeignKey('customer.customer_phone_number'), default=None)
+    product_raw_amount = db.Column(db.Integer,nullable=True) 
+    backup_product_selling_amount = db.Column(db.Integer, nullable=True,default=None)  # New field to store the original selling amount for discount restoration
+    backup_product_raw_amount = db.Column(db.Integer, default=None,nullable=True)  # New field to store the original raw amount for discount restoration
+    discount = db.Column(db.Integer,nullable=True)
+    product_location = db.Column(db.String(100),nullable=True,default=None)
+    product_entry_date = db.Column(db.String(100),nullable=True)
+    product_exit_date = db.Column(db.DateTime, default=None,nullable=True)
+    customer_phone_number = db.Column(db.String(10), db.ForeignKey('customer.customer_phone_number'), default=None, nullable=True)
     status = db.Column(db.String(20), default='active')  # active, sold, expired, etc.
     def __init__(self, **kwargs):
         super(Product, self).__init__(**kwargs)
@@ -165,18 +165,12 @@ def new_product():
         product_id = request.form.get('product_id')
         product_selling_amount = request.form.get('product_selling_amount')
         product_raw_amount = request.form.get('product_raw_amount')
-        discount = request.form.get('discount')
-        status = request.form.get('status')
-        product_location = request.form.get('product_location')
         product_entry_date = datetime.utcnow().strftime("%Y-%m-%d")
         product = Product(
             product_name=product_name,
             product_id=product_id,
             product_selling_amount=product_selling_amount,
             product_raw_amount=product_raw_amount,
-            discount=discount,
-            status=status,
-            product_location=product_location,
             product_entry_date=product_entry_date
         )
         db.session.add(product)
@@ -283,6 +277,17 @@ def bill_show_page(billing_id):
     shop = ShopDealer.query.all()
     products = Product.query.filter_by(billing_id=billing_id)
     return render_template('bill_show_page.html', billing=billing,selled=selled,shop=shop,products=products)
+
+
+@app.route("/temp_product",methods=['GET','POST'])
+def temp_product() :
+    if request.method == 'POST' :
+        name = request.form.get('product_name')
+        amount = request.form.get('product_amount')
+        
+    
+    
+
 
 @app.route('/whatsapp_bill/<int:billing_id>')
 def whatsapp_bill(billing_id):

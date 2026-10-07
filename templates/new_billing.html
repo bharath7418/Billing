@@ -403,6 +403,16 @@
             </div>
         </aside>
 
+
+        <form action="/temp_product" method="post">
+            <input type="text" name="product_name" placeholder="New Product">
+            <input type="number" name="product_id" id="product_amount_ref" placeholder="Product Number">
+            <input type="number" placeholder="Amount" name="product_amount">
+            <button>Add</button>
+        </form>
+            
+
+
         <section class="right-column">
             <p>Bill No.</p><h1>{{ next_bill_no }}</h1>
             <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
@@ -722,6 +732,11 @@
             if (hiddenTotalInput) hiddenTotalInput.value = reductionTotal;
             if (hiddenDiscountInput) hiddenDiscountInput.value = percentValue;
         }
+
+        function find_amount() {
+                
+        }
+
     </script>
 
 </body>
