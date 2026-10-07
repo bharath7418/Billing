@@ -97,6 +97,10 @@ class Billing(db.Model) :
     billing_amount = db.Column(db.Integer)
     applies_discount = db.Column(db.Integer, default=0)  # New field to indicate if a discount was applied
     applies_discount_amount = db.Column(db.Integer, default=0)
+    overall_discount_amount = db.Column(
+        db.Integer,
+        db.Computed("billing_amount - applies_discount_amount")
+    )
     total_quantity = db.Column(db.Integer)
     billing_date = db.Column(db.DateTime, default=datetime.utcnow)
     billing_products = db.relationship('SelledProduct', backref='billing', lazy=True)
@@ -279,15 +283,49 @@ def bill_show_page(billing_id):
     return render_template('bill_show_page.html', billing=billing,selled=selled,shop=shop,products=products)
 
 
+
 @app.route("/temp_product",methods=['GET','POST'])
 def temp_product() :
     if request.method == 'POST' :
         name = request.form.get('product_name')
+        serial = request.form.get('product_id')
         amount = request.form.get('product_amount')
-        
-    
-    
 
+        temp = Product(
+            product_name = name,
+            product_id = serial,
+            product_selling_amount = amount,
+            product_raw_amount = transform_serial(serial),
+            backup_product_selling_amount = amount,
+            backup_product_raw_amount = transform_serial(serial),
+            discount = 0,
+            product_location = "Ramajayam Readymades",
+            product_entry_date=datetime.utcnow(),
+            product_exit_date=datetime.utcnow(),
+            status = "scanned"
+        )
+        db.session.add(temp)
+        db.session.commit()
+    
+        add_product = SelledProduct(
+                selled_product_name=name,
+                selled_product_id=serial,
+            )
+        db.session.add(add_product)
+        db.session.commit()
+    return redirect(url_for('new_billing'))
+
+def transform_serial(serial):
+    """
+    Takes a 6-digit string/integer (e.g. "920051"), extracts middle digits ("005"),
+    reverses them ("500"), and returns an integer (500).
+    """
+    if serial and len(str(serial)) == 6:
+        extracted = str(serial)[2:5]  # "920051" -> "005"
+        reversed_str = extracted[::-1] # "005" -> "500"
+        return int(reversed_str)      # "500" -> 500 (Integer)
+    
+    return None
 
 @app.route('/whatsapp_bill/<int:billing_id>')
 def whatsapp_bill(billing_id):
@@ -376,7 +414,6 @@ def clear_product(id):
     product_name = product.product_name
     flash(f"Removed the {product_name} !", "success")
     return redirect(url_for('new_billing'))
-
 
 # ==============================
 # Bulk Upload Route
@@ -614,7 +651,6 @@ def qr_code_page():
         qr_list.append({"product": product, "qr_code": qr_base64})
 
     return render_template("qr_code.html", qr_list=qr_list,shop=shop)
-
 
 @app.route('/logout')
 def logout():
