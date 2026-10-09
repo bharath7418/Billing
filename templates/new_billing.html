@@ -4,143 +4,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ramajayam Readymades</title>
+    <title>Ramajayam Readymades - Billing Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
     <style>
         :root {
-            /* Architectural System Tokens */
-            --bg-surface: #f8fafc;
-            --bg-card: #ffffff;
-            --text-primary: #0f172a;
-            --text-secondary: #475569;
-            --text-muted: #94a3b8;
-
-            --brand-primary: #2563eb;
-            --brand-primary-light: #eff6ff;
-            --brand-danger: #ef4444;
-            --brand-success: #16a34a;
-
-            --border-subtle: #f1f5f9;
-            --border-strong: #e2e8f0;
-
-            --radius-xl: 14px;
-            --radius-md: 8px;
-            --radius-sm: 4px;
-
-            --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
-            --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            --bg-main: #f8fafc;
+            --surface-card: #ffffff;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --success: #10b981;
+            --success-bg: #ecfdf5;
+            --danger: #ef4444;
+            --danger-bg: #fef2f2;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.08), 0 2px 4px -2px rgba(0,0,0,0.05);
+            --radius: 12px;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            -webkit-font-smoothing: antialiased;
         }
 
         body {
-            background-color: var(--bg-surface);
-            color: var(--text-primary);
-            line-height: 1.4;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding-bottom: 40px;
         }
 
-        /* Responsive Layout Grid Architecture */
+        /* Top Navigation Bar */
         .app-bar {
-            background-color: var(--bg-card);
-            border-bottom: 1px solid var(--border-subtle);
+            background: var(--surface-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             position: sticky;
             top: 0;
             z-index: 100;
-            padding: 12px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
             box-shadow: var(--shadow-sm);
-            flex-wrap: wrap;
-            gap: 8px;
         }
 
         .nav-left {
             display: flex;
             align-items: center;
-            gap: 12px;
-        }
-
-        .btn-back {
-            background: none;
-            border: 1px solid var(--border-strong);
-            padding: 8px 14px;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            transition: var(--transition-fast);
-            min-height: 40px;
-        }
-
-        .btn-back:hover {
-            background-color: var(--bg-surface);
-            color: var(--text-primary);
-        }
-
-        .app-title {
-            font-size: 1.1rem;
-            font-weight: 800;
-        }
-
-        .day-order-badge {
-            background-color: var(--brand-primary-light);
-            color: var(--brand-primary);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.775rem;
-            font-weight: 700;
-        }
-
-        .dashboard-container {
-            max-width: 1100px;
-            margin: 16px auto;
-            padding: 0 16px;
-            display: grid;
-            grid-template-columns: 1fr;
             gap: 16px;
         }
 
-        @media (min-width: 868px) {
-            .dashboard-container {
-                grid-template-columns: 360px 1fr;
-                align-items: start;
-            }
+        .btn-back {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 6px 12px;
+            border-radius: 6px;
+            background: #f1f5f9;
+            transition: all 0.2s ease;
         }
 
+        .btn-back:hover {
+            background: #e2e8f0;
+            color: var(--text-main);
+        }
+
+        .app-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.02em;
+        }
+
+        .day-order-badge {
+            background: #eff6ff;
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 0.8rem;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid #bfdbfe;
+        }
+
+        /* Main Container Grid */
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 24px auto;
+            padding: 0 16px;
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 24px;
+        }
+
+        .left-column, .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Card Panels */
         .panel-card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-xl);
-            padding: 16px;
+            background: var(--surface-card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            padding: 20px;
             box-shadow: var(--shadow-sm);
-            margin-bottom: 16px;
         }
 
         .panel-title {
-            font-size: 0.8rem;
+            font-size: 1.05rem;
             font-weight: 700;
-            color: var(--text-muted);
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+            margin-bottom: 16px;
+            color: var(--text-main);
         }
 
-        /* Action Input Form Configurations */
+        /* Alert Feedback List */
+        .alert-list {
+            list-style: none;
+            margin-bottom: 16px;
+        }
+
+        .alert-item {
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        /* Inputs & Form Groups */
         .form-group {
-            margin-bottom: 12px;
+            margin-bottom: 16px;
         }
 
         .input-with-action {
@@ -148,205 +151,194 @@
             gap: 8px;
         }
 
-        .form-input {
+        .form-input, .form-control {
             width: 100%;
-            padding: 12px 14px;
-            border: 1px solid var(--border-strong);
-            border-radius: var(--radius-md);
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-family: inherit;
             font-size: 0.95rem;
-            font-weight: 600;
             outline: none;
-            background-color: var(--bg-surface);
-            transition: var(--transition-fast);
-            min-height: 44px;
+            transition: border-color 0.2s;
         }
 
-        .form-input:focus {
-            border-color: var(--brand-primary);
-            background-color: var(--bg-card);
-            box-shadow: 0 0 0 3px var(--brand-primary-light);
+        .form-input:focus, .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
         .btn-action-toggle {
-            background-color: var(--bg-surface);
-            border: 1px solid var(--border-strong);
-            border-radius: var(--radius-md);
-            padding: 0 16px;
+            background: #f1f5f9;
+            border: 1px solid var(--border-color);
+            padding: 0 14px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition-fast);
-            min-height: 44px;
-        }
-
-        .btn-action-toggle:hover {
-            background-color: var(--brand-primary-light);
-            border-color: var(--brand-primary);
+            font-size: 1.1rem;
+            transition: all 0.2s;
         }
 
         .btn-action-toggle.active {
-            background-color: var(--brand-danger);
-            color: white;
-            border-color: var(--brand-danger);
-        }
-
-        /* QR Scanner Subsystem Container */
-        .scanner-viewport-wrapper {
-            display: none;
-            margin-bottom: 12px;
-            border: 1px solid var(--border-strong);
-            border-radius: var(--radius-md);
-            overflow: hidden;
-            background-color: #000000;
-            position: relative;
-        }
-
-        #qr-reader {
-            width: 100% !important;
-            border: none !important;
-        }
-
-        #qr-reader __video {
-            object-fit: cover !important;
+            background: var(--danger-bg);
+            color: var(--danger);
+            border-color: #fca5a5;
         }
 
         .btn-submit {
             width: 100%;
-            background-color: var(--brand-primary);
+            background: var(--primary);
             color: white;
             border: none;
             padding: 12px;
-            border-radius: var(--radius-md);
-            font-size: 0.95rem;
+            border-radius: 8px;
             font-weight: 700;
+            font-size: 0.95rem;
             cursor: pointer;
-            transition: var(--transition-fast);
-            min-height: 44px;
+            transition: background 0.2s;
         }
 
         .btn-submit:hover {
-            background-color: #1d4ed8;
+            background: var(--primary-hover);
         }
 
-        /* Form Controls for Billing Form */
-        label {
-            display: block;
-            font-size: 0.75rem;
+        /* QR Scanner Viewport */
+        .scanner-viewport-wrapper {
+            display: none;
+            margin-bottom: 16px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px dashed var(--primary);
+            background: #000;
+        }
+
+        /* Quick Add Product Inline Form */
+        .quick-add-card {
+            background: var(--surface-card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            padding: 16px 20px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .quick-add-card input {
+            flex: 1;
+            min-width: 120px;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+        }
+
+        .quick-add-card button {
+            background: var(--text-main);
+            color: white;
+            padding: 8px 18px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Bill Header Header Box */
+        .bill-header-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--surface-card);
+            border: 1px solid var(--border-color);
+            padding: 16px 20px;
+            border-radius: var(--radius);
+        }
+
+        .bill-no-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
             font-weight: 700;
-            color: var(--text-secondary);
-            margin-top: 12px;
-            margin-bottom: 4px;
-            text-transform: uppercase;
+            color: var(--primary);
         }
 
-        .form-control {
-            width: 100%;
-            padding: 10px 14px;
-            border: 1px solid var(--border-strong);
-            border-radius: var(--radius-md);
-            font-size: 0.9rem;
-            background-color: var(--bg-surface);
-            outline: none;
-            transition: var(--transition-fast);
-            min-height: 44px;
-        }
-
-        .form-control:focus {
-            border-color: var(--brand-primary);
-            background-color: var(--bg-card);
-        }
-
-        /* Table Configurations & Responsive Wrappers */
+        /* Tables */
         .table-responsive {
             width: 100%;
             overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            margin-bottom: 14px;
-            border: 1px solid var(--border-strong);
-            border-radius: var(--radius-md);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            background: var(--surface-card);
+            box-shadow: var(--shadow-sm);
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            background: var(--bg-card);
-            min-width: 500px; /* Prevents cell distortion on mobile view */
-        }
-
-        td, th {
-            padding: 10px 12px;
-            font-size: 0.85rem;
-            border-bottom: 1px solid var(--border-subtle);
             text-align: left;
         }
 
         th {
-            background-color: var(--bg-surface);
-            color: var(--text-secondary);
-            font-weight: 700;
+            background: #f8fafc;
+            padding: 12px 16px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
         }
 
-        td a {
-            color: var(--brand-primary);
-            text-decoration: none;
-            font-weight: 700;
-            padding: 4px;
-            display: inline-block;
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.925rem;
         }
 
-        /* Flash Message Alert Banners */
-        .alert-list {
-            list-style: none;
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        /* Customer Form Grid */
+        .billing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
             margin-bottom: 12px;
         }
 
-        .alert-item {
-            padding: 10px 12px;
-            border-radius: var(--radius-md);
-            font-size: 0.8rem;
+        .billing-grid label {
+            display: block;
+            font-size: 0.85rem;
             font-weight: 600;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            margin-bottom: 6px;
+            color: var(--text-muted);
         }
 
-        /* Mobile Responsive Grid for Billing Input Fields */
-        .billing-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 12px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-strong);
-            border-radius: var(--radius-md);
-            padding: 16px;
-        }
-
-        @media (min-width: 640px) {
-            .billing-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        /* Mobile Optimization overrides */
-        @media (max-width: 600px) {
+        /* Mobile Breakpoint Optimization */
+        @media (max-width: 900px) {
             .dashboard-container {
-                padding: 0 12px;
-                margin: 12px auto;
-            }
-
-            .panel-card {
-                padding: 12px;
+                grid-template-columns: 1fr;
             }
 
             .app-bar {
-                padding: 10px 12px;
+                padding: 12px 16px;
             }
 
             .app-title {
-                font-size: 1rem;
+                font-size: 1.1rem;
+            }
+
+            .quick-add-card {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .quick-add-card input {
+                min-width: 100%;
+            }
+
+            .billing-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -373,9 +365,8 @@
                 <ul class="alert-list">
                     {% for category, message in messages %}
                     <li class="alert-item"
-                        style="
-                            background-color: {% if category == 'success' %}#d1fae5{% elif category == 'danger' %} #fee2e2 {% else %} #f1f5f9 {% endif %};
-                            color: {% if category == 'success' %} #065f46 {% elif category == 'danger' %}#991b1b{% else %}#334155{% endif %};">
+                        style="background-color: {% if category == 'success' %}var(--success-bg){% elif category == 'danger' %}var(--danger-bg){% else %}#f1f5f9{% endif %};
+                               color: {% if category == 'success' %}#065f46{% elif category == 'danger' %}#991b1b{% else %}#334155{% endif %};">
                         {{ message }}
                     </li>
                     {% endfor %}
@@ -401,30 +392,28 @@
                     <button type="submit" class="btn-submit">Verify Identity</button>
                 </form>
             </div>
+
+            <!-- Modern Card Wrapper for Manual Product Entry -->
+            <div class="panel-card">
+                <h2 class="panel-title">Add Manual Item</h2>
+                <form action="/temp_product" method="post" style="display: flex; flex-direction: column; gap: 10px;">
+                    <input type="text" class="form-input" name="product_name" placeholder="New Product Name" required>
+                    <input type="number" class="form-input" name="product_id" id="product_amount_ref" placeholder="Product ID / Code" required>
+                    <input type="number" class="form-input" placeholder="Amount (₹)" name="product_amount" required>
+                    <button class="btn-submit" style="background: var(--text-main);">Add Product</button>
+                </form>
+            </div>
         </aside>
 
-
-        <form action="/temp_product" method="post">
-            <input type="text" name="product_name" placeholder="New Product">
-            <input type="number" name="product_id" id="product_amount_ref" placeholder="Product Number">
-            <input type="number" placeholder="Amount" name="product_amount">
-            <button>Add</button>
-        </form>
-            
-
-
         <section class="right-column">
-            <p>Bill No.</p><h1>{{ next_bill_no }}</h1>
-            <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-                <h2 class="panel-title" style="margin-bottom: 0;">Today's Verification Entries</h2>
-                <span id="liveCounter"
-                    style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); background: #e2e8f0; padding: 4px 10px; border-radius: 12px;">
-                    {{ selled_products|length }} Active
+            <div class="bill-header-box">
+                <div>
+                    <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">CURRENT BILL</span>
+                    <h1 class="bill-no-badge">#{{ next_bill_no }}</h1>
+                </div>
+                <span id="liveCounter" style="font-size: 0.8rem; font-weight: 700; color: var(--primary); background: #eff6ff; padding: 6px 12px; border-radius: 20px; border: 1px solid #bfdbfe;">
+                    {{ selled_products|length }} Active Entries
                 </span>
-            </div>
-
-            <div style="font-size: 0.85rem; margin-bottom: 14px; color: var(--text-secondary);">
-                <strong>{{ selled_products|length }}</strong> total entries recorded for the day.
             </div>
 
             <div class="table-responsive">
@@ -439,7 +428,6 @@
                     </thead>
                     <tbody>
                         {% set total_count = namespace(value=0) %}
-                        {% set total_raw_amount = namespace(value=0) %}
                         {% set total_selling_amount = namespace(value=0) %}
 
                         {% for p in products %}
@@ -451,49 +439,45 @@
                             <td>{{ p.product_name }}</td>
                             <td>
                                 {% if p.product_selling_amount != p.backup_product_selling_amount %}
-                                <s style="color: red;">₹{{ p.backup_product_selling_amount }}</s>
-                                <span style="color: green; font-weight: bold; margin-left: 6px;">₹{{ p.product_selling_amount }}</span>
+                                <s style="color: var(--danger);">₹{{ p.backup_product_selling_amount }}</s>
+                                <span style="color: var(--success); font-weight: 700; margin-left: 6px;">₹{{ p.product_selling_amount }}</span>
                                 {% else %}
                                 ₹{{ p.product_selling_amount }}
                                 {% endif %}
                             </td>
                             <td>
                                 {% if p.product_selling_amount == p.backup_product_selling_amount %}
-                                <a href="/discount_apply/{{ p.id }}">🏷️</a>
+                                <a href="/discount_apply/{{ p.id }}" style="text-decoration: none;">🏷️</a>
                                 {% if p.discount and p.discount > 0 %}
-                                <span style="color: blue; font-size: 0.85em;">({{ p.discount }}%)</span>
+                                <span style="color: var(--primary); font-size: 0.85em;">({{ p.discount }}%)</span>
                                 {% endif %}
                                 {% else %}
-                                <span style="color: green; font-weight: bold;">
-                                    <a href="/discount_remove/{{ p.id }}">💵 <span style="color: blue; font-size: 0.85em;">(0%)</span></a>
-                                </span>
+                                <a href="/discount_remove/{{ p.id }}" style="text-decoration: none;">💵 <span style="color: var(--primary); font-size: 0.85em;">(0%)</span></a>
                                 {% endif %}
-                                <a href="/clear_product/{{ p.id }}">⚠️</a>
+                                <a href="/clear_product/{{ p.id }}" style="text-decoration: none; margin-left: 6px;">⚠️</a>
                             </td>
                         </tr>
                         {% endfor %}
                     </tbody>
 
-                    <tfoot style="background-color: #f9f9f9; font-weight: bold; border-top: 2px solid #ccc;">
+                    <tfoot style="background-color: #f8fafc; font-weight: bold; border-top: 2px solid var(--border-color);">
                         <tr>
-                            <td>Total: {{ total_count.value }}</td>
+                            <td>Total Items: {{ total_count.value }}</td>
                             <td>Summary:</td>
                             <td>
                                 <div id="summary-price-container" data-base-total="{{ total_selling_amount.value }}">
-                                    <s id="total-crossed" style="color: red; display: none;">₹{{ total_selling_amount.value }}</s>
-                                    <span id="final-total-display" style="color: black;">₹{{ total_selling_amount.value }}</span>
-                                    <span id="manual-text-label" style="display: none; color: darkgreen; font-size: 0.85em; margin-top: 4px;"></span>
+                                    <s id="total-crossed" style="color: var(--danger); display: none;">₹{{ total_selling_amount.value }}</s>
+                                    <span id="final-total-display" style="color: var(--text-main); font-size: 1.05rem;">₹{{ total_selling_amount.value }}</span>
+                                    <span id="manual-text-label" style="display: none; color: var(--success); font-size: 0.825em; margin-top: 2px;"></span>
                                 </div>
                             </td>
-                            <td>
-                                <span style="color: #555;">Final Summary</span>
-                            </td>
+                            <td><span style="color: var(--text-muted); font-size: 0.85rem;">Checkout Summary</span></td>
                         </tr>
 
-                        <tr style="background-color: #f1f3f5; border-top: 1px dashed #bbb;">
+                        <tr style="background-color: #f1f5f9; border-top: 1px dashed var(--border-color);">
                             <td colspan="2" style="text-align: right; vertical-align: middle;">
                                 Add Discount?
-                                <select id="discount-toggle" onchange="toggleDiscountInput()" style="padding: 6px; margin-left: 8px; border-radius: 4px; border: 1px solid var(--border-strong);">
+                                <select id="discount-toggle" onchange="toggleDiscountInput()" style="padding: 6px 10px; margin-left: 8px; border-radius: 6px; border: 1px solid var(--border-color); font-family: inherit;">
                                     <option value="no">No</option>
                                     <option value="yes">Yes</option>
                                 </select>
@@ -502,8 +486,8 @@
                                 <div id="input-container" style="display: none; align-items: center; gap: 8px; flex-wrap: wrap;">
                                     <input type="number" name="manual-percentage" id="manual-percentage" min="1" max="100" placeholder="%"
                                         onkeyup="calculateManualDiscount()" oninput="calculateManualDiscount()"
-                                        style="width: 70px; padding: 6px; border: 1px solid #aaa; border-radius: 4px;">
-                                    <span style="font-size: 0.8em; font-weight: normal; color: #666;">% off total</span>
+                                        style="width: 70px; padding: 6px; border: 1px solid var(--border-color); border-radius: 6px;">
+                                    <span style="font-size: 0.85rem; font-weight: normal; color: var(--text-muted);">% off total</span>
                                 </div>
                             </td>
                         </tr>
@@ -511,30 +495,33 @@
                 </table>
             </div>
 
-            <form method="POST" action="{{ url_for('new_billing') }}" style="margin-top: 20px;">
-                <div class="billing-grid">
-                    <div>
-                        <label for="customer_phone_number">Customer Phone Number</label>
-                        <input type="text" id="customer_phone_number" name="customer_phone_number"
-                            class="form-control" placeholder="Enter phone..." required>
+            <div class="panel-card" style="margin-top: 8px;">
+                <h2 class="panel-title">Customer Billing Details</h2>
+                <form method="POST" action="{{ url_for('new_billing') }}">
+                    <div class="billing-grid">
+                        <div>
+                            <label for="customer_phone_number">Customer Phone Number</label>
+                            <input type="text" id="customer_phone_number" name="customer_phone_number"
+                                class="form-control" placeholder="Enter phone..." required>
+                        </div>
+                        <div>
+                            <label for="customer_name">Customer Name</label>
+                            <input type="text" id="customer_name" name="customer_name" class="form-control"
+                                placeholder="Customer name..." required>
+                        </div>
+                        <div>
+                            <label for="customer_address">Customer Address</label>
+                            <textarea id="customer_address" name="customer_address" class="form-control" rows="1"
+                                placeholder="Delivery destination address..." style="resize: vertical;" required></textarea>
+                        </div>
                     </div>
-                    <div>
-                        <label for="customer_name">Customer Name</label>
-                        <input type="text" id="customer_name" name="customer_name" class="form-control"
-                            placeholder="Customer name..." required>
-                    </div>
-                    <div>
-                        <label for="customer_address">Customer Address: </label>
-                        <textarea id="customer_address" name="customer_address" class="form-control" rows="1"
-                            placeholder="Delivery destination address..." style="resize: vertical;" required></textarea>
-                    </div>
-                </div>
 
-                <input type="hidden" name="total_selling_count" value="{{ total_count.value }}">
-                <input type="hidden" name="total_selling_amount" value="{{ total_selling_amount.value }}">
-                <input type="hidden" name="manual-percentage" id="hidden_manual_percentage" value="0">
-                <button type="submit" class="btn-submit" style="margin-top: 12px;">Submit Billing</button>
-            </form>
+                    <input type="hidden" name="total_selling_count" value="{{ total_count.value }}">
+                    <input type="hidden" name="total_selling_amount" value="{{ total_selling_amount.value }}">
+                    <input type="hidden" name="manual-percentage" id="hidden_manual_percentage" value="0">
+                    <button type="submit" class="btn-submit" style="margin-top: 8px;">Submit Billing & Print</button>
+                </form>
+            </div>
         </section>
     </main>
 
@@ -545,7 +532,6 @@
         const productIdInput = document.getElementById('product_id');
         const verificationForm = document.getElementById('verificationForm');
 
-        // 🔊 Web Audio API Sound Synthesizer for POS / QR Scanner Beep
         function playBeep() {
             try {
                 const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -556,10 +542,10 @@
                 const gainNode = audioCtx.createGain();
 
                 oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(1800, audioCtx.currentTime); // 1800Hz high-pitched scanner frequency
+                oscillator.frequency.setValueAtTime(1800, audioCtx.currentTime);
                 
                 gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.12); // Short 120ms sound pulse
+                gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.12);
 
                 oscillator.connect(gainNode);
                 gainNode.connect(audioCtx.destination);
@@ -571,7 +557,6 @@
             }
         }
 
-        // Toggle logic for opening and closing camera stream
         toggleScannerBtn.addEventListener('click', () => {
             if (scannerWrapper.style.display === 'none' || scannerWrapper.style.display === '') {
                 startScanner();
@@ -633,11 +618,10 @@
             const parsedId = decodedText.replace(/\D/g, '');
 
             if (parsedId) {
-                playBeep(); // 🔔 Play scan success feedback audio
+                playBeep();
                 productIdInput.value = parsedId;
                 stopScanner();
                 
-                // Short delay before submitting form to ensure sound plays
                 setTimeout(() => {
                     verificationForm.submit();
                 }, 150);
@@ -646,18 +630,14 @@
             }
         }
 
-        function onScanFailure(error) {
-            // Drop sequential check frame array evaluation logs silently
-        }
+        function onScanFailure(error) {}
 
-        // Trigger beep on manual entry form submit
         verificationForm.addEventListener('submit', function (e) {
             if (productIdInput.value.trim() !== '') {
                 playBeep();
             }
         });
 
-        // Live API Look-up Operations
         document.getElementById('customer_phone_number').addEventListener('blur', function () {
             const phoneNo = this.value.trim();
 
@@ -710,7 +690,7 @@
 
             if (isNaN(percentValue) || percentValue <= 0 || percentValue > 100) {
                 crossedElement.style.display = 'none';
-                displayElement.style.color = 'black';
+                displayElement.style.color = 'var(--text-main)';
                 displayElement.innerText = '₹' + baseTotal;
                 labelElement.style.display = 'none';
 
@@ -719,11 +699,12 @@
                 return;
             }
 
+            // Fixed math operators (* and -)
             const discountAmount = (baseTotal * percentValue) / 100;
             const reductionTotal = Math.round(baseTotal - discountAmount);
 
             crossedElement.style.display = 'inline';
-            displayElement.style.color = 'green';
+            displayElement.style.color = 'var(--success)';
             displayElement.innerText = '₹' + reductionTotal;
 
             labelElement.style.display = 'block';
@@ -732,13 +713,6 @@
             if (hiddenTotalInput) hiddenTotalInput.value = reductionTotal;
             if (hiddenDiscountInput) hiddenDiscountInput.value = percentValue;
         }
-
-        function find_amount() {
-                
-        }
-
     </script>
-
 </body>
-
 </html>
