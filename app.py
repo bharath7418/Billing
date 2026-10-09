@@ -425,7 +425,7 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # --- Route for Products File Upload & Processing ---
-@app.route('/upload_products', methods=['GET', 'POST'])
+@app.route('/upload_products', methods=['GET', 'POST']) 
 def upload_products():
     if request.method == 'POST':
         if 'file' not in request.files:

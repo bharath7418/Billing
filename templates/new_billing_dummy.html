@@ -7,9 +7,7 @@
     <title>Ramajayam Readymades - Billing Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
     <style>
@@ -25,8 +23,8 @@
             --success-bg: #ecfdf5;
             --danger: #ef4444;
             --danger-bg: #fef2f2;
-            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.08), 0 2px 4px -2px rgba(0,0,0,0.05);
             --radius: 12px;
         }
 
@@ -107,8 +105,7 @@
             gap: 24px;
         }
 
-        .left-column,
-        .right-column {
+        .left-column, .right-column {
             display: flex;
             flex-direction: column;
             gap: 20px;
@@ -154,8 +151,7 @@
             gap: 8px;
         }
 
-        .form-input,
-        .form-control {
+        .form-input, .form-control {
             width: 100%;
             padding: 10px 14px;
             border-radius: 8px;
@@ -166,8 +162,7 @@
             transition: border-color 0.2s;
         }
 
-        .form-input:focus,
-        .form-control:focus {
+        .form-input:focus, .form-control:focus {
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
@@ -403,8 +398,7 @@
                 <h2 class="panel-title">Add Manual Item</h2>
                 <form action="/temp_product" method="post" style="display: flex; flex-direction: column; gap: 10px;">
                     <input type="text" class="form-input" name="product_name" placeholder="New Product Name" required>
-                    <input type="number" class="form-input" name="product_id" id="product_amount_ref"
-                        placeholder="Product ID / Code" required>
+                    <input type="number" class="form-input" name="product_id" id="product_amount_ref" placeholder="Product ID / Code" required>
                     <input type="number" class="form-input" placeholder="Amount (₹)" name="product_amount" required>
                     <button class="btn-submit" style="background: var(--text-main);">Add Product</button>
                 </form>
@@ -417,9 +411,8 @@
                     <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">CURRENT BILL</span>
                     <h1 class="bill-no-badge">#{{ next_bill_no }}</h1>
                 </div>
-                <span id="liveCounter"
-                    style="font-size: 0.8rem; font-weight: 700; color: var(--primary); background: #eff6ff; padding: 6px 12px; border-radius: 20px; border: 1px solid #bfdbfe;">
-                    {{ products|length }} Active Entries
+                <span id="liveCounter" style="font-size: 0.8rem; font-weight: 700; color: var(--primary); background: #eff6ff; padding: 6px 12px; border-radius: 20px; border: 1px solid #bfdbfe;">
+                    {{ selled_products|length }} Active Entries
                 </span>
             </div>
 
@@ -447,8 +440,7 @@
                             <td>
                                 {% if p.product_selling_amount != p.backup_product_selling_amount %}
                                 <s style="color: var(--danger);">₹{{ p.backup_product_selling_amount }}</s>
-                                <span style="color: var(--success); font-weight: 700; margin-left: 6px;">₹{{
-                                    p.product_selling_amount }}</span>
+                                <span style="color: var(--success); font-weight: 700; margin-left: 6px;">₹{{ p.product_selling_amount }}</span>
                                 {% else %}
                                 ₹{{ p.product_selling_amount }}
                                 {% endif %}
@@ -460,30 +452,23 @@
                                 <span style="color: var(--primary); font-size: 0.85em;">({{ p.discount }}%)</span>
                                 {% endif %}
                                 {% else %}
-                                <a href="/discount_remove/{{ p.id }}" style="text-decoration: none;">💵 <span
-                                        style="color: var(--primary); font-size: 0.85em;">(0%)</span></a>
+                                <a href="/discount_remove/{{ p.id }}" style="text-decoration: none;">💵 <span style="color: var(--primary); font-size: 0.85em;">(0%)</span></a>
                                 {% endif %}
-                                <a href="/clear_product/{{ p.id }}"
-                                    style="text-decoration: none; margin-left: 6px;">⚠️</a>
+                                <a href="/clear_product/{{ p.id }}" style="text-decoration: none; margin-left: 6px;">⚠️</a>
                             </td>
                         </tr>
                         {% endfor %}
                     </tbody>
 
-                    <tfoot
-                        style="background-color: #f8fafc; font-weight: bold; border-top: 2px solid var(--border-color);">
+                    <tfoot style="background-color: #f8fafc; font-weight: bold; border-top: 2px solid var(--border-color);">
                         <tr>
                             <td>Total Items: {{ total_count.value }}</td>
                             <td>Summary:</td>
                             <td>
                                 <div id="summary-price-container" data-base-total="{{ total_selling_amount.value }}">
-                                    <s id="total-crossed" style="color: var(--danger); display: none;">₹{{
-                                        total_selling_amount.value }}</s>
-                                    <span id="final-total-display"
-                                        style="color: var(--text-main); font-size: 1.05rem;">₹{{
-                                        total_selling_amount.value }}</span>
-                                    <span id="manual-text-label"
-                                        style="display: none; color: var(--success); font-size: 0.825em; margin-top: 2px;"></span>
+                                    <s id="total-crossed" style="color: var(--danger); display: none;">₹{{ total_selling_amount.value }}</s>
+                                    <span id="final-total-display" style="color: var(--text-main); font-size: 1.05rem;">₹{{ total_selling_amount.value }}</span>
+                                    <span id="manual-text-label" style="display: none; color: var(--success); font-size: 0.825em; margin-top: 2px;"></span>
                                 </div>
                             </td>
                             <td><span style="color: var(--text-muted); font-size: 0.85rem;">Checkout Summary</span></td>
@@ -492,20 +477,17 @@
                         <tr style="background-color: #f1f5f9; border-top: 1px dashed var(--border-color);">
                             <td colspan="2" style="text-align: right; vertical-align: middle;">
                                 Add Discount?
-                                <select id="discount-toggle" onchange="toggleDiscountInput()"
-                                    style="padding: 6px 10px; margin-left: 8px; border-radius: 6px; border: 1px solid var(--border-color); font-family: inherit;">
+                                <select id="discount-toggle" onchange="toggleDiscountInput()" style="padding: 6px 10px; margin-left: 8px; border-radius: 6px; border: 1px solid var(--border-color); font-family: inherit;">
                                     <option value="no">No</option>
                                     <option value="yes">Yes</option>
                                 </select>
                             </td>
                             <td colspan="2" style="vertical-align: middle;">
-                                <div id="input-container"
-                                    style="display: none; align-items: center; gap: 8px; flex-wrap: wrap;">
-                                    <input type="number" id="manual-percentage" min="1" max="100" placeholder="%"
+                                <div id="input-container" style="display: none; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                    <input type="number" name="manual-percentage" id="manual-percentage" min="1" max="100" placeholder="%"
                                         onkeyup="calculateManualDiscount()" oninput="calculateManualDiscount()"
                                         style="width: 70px; padding: 6px; border: 1px solid var(--border-color); border-radius: 6px;">
-                                    <span style="font-size: 0.85rem; font-weight: normal; color: var(--text-muted);">%
-                                        off total</span>
+                                    <span style="font-size: 0.85rem; font-weight: normal; color: var(--text-muted);">% off total</span>
                                 </div>
                             </td>
                         </tr>
@@ -530,8 +512,7 @@
                         <div>
                             <label for="customer_address">Customer Address</label>
                             <textarea id="customer_address" name="customer_address" class="form-control" rows="1"
-                                placeholder="Delivery destination address..." style="resize: vertical;"
-                                required></textarea>
+                                placeholder="Delivery destination address..." style="resize: vertical;" required></textarea>
                         </div>
                     </div>
 
@@ -555,16 +536,14 @@
             try {
                 const AudioContext = window.AudioContext || window.webkitAudioContext;
                 if (!AudioContext) return;
-
+                
                 const audioCtx = new AudioContext();
                 const oscillator = audioCtx.createOscillator();
                 const gainNode = audioCtx.createGain();
 
-                // Standard sine wave tone
                 oscillator.type = 'sine';
                 oscillator.frequency.setValueAtTime(1800, audioCtx.currentTime);
-
-                // Quick volume attack and sharp exponential decay
+                
                 gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
                 gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.12);
 
@@ -572,12 +551,12 @@
                 gainNode.connect(audioCtx.destination);
 
                 oscillator.start();
-                // Fixed duration to match the audio fade-out perfectly (0.12 seconds)
                 oscillator.stop(audioCtx.currentTime + 0.12);
             } catch (e) {
                 console.warn("Audio playback not allowed or supported on this device.", e);
             }
         }
+
         toggleScannerBtn.addEventListener('click', () => {
             if (scannerWrapper.style.display === 'none' || scannerWrapper.style.display === '') {
                 startScanner();
@@ -642,7 +621,7 @@
                 playBeep();
                 productIdInput.value = parsedId;
                 stopScanner();
-
+                
                 setTimeout(() => {
                     verificationForm.submit();
                 }, 150);
@@ -651,7 +630,7 @@
             }
         }
 
-        function onScanFailure(error) { }
+        function onScanFailure(error) {}
 
         verificationForm.addEventListener('submit', function (e) {
             if (productIdInput.value.trim() !== '') {
@@ -736,5 +715,4 @@
         }
     </script>
 </body>
-
 </html>
