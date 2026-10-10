@@ -1,4 +1,5 @@
-from flask import Flask, render_template, redirect, request,url_for, flash, abort, Response, jsonify
+from flask import Flask, render_template, redirect, request,url_for, flash, abort, Response, jsonify, session
+
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_manager,  login_user, login_required, current_user, UserMixin, logout_user
 import os
@@ -29,7 +30,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'home'
-
 
 #Migrate Procedure
 migrate = Migrate(app, db)
@@ -88,14 +88,14 @@ class Customer(db.Model) :
     customer_address = db.Column(db.String(200))
     __tablename__ = 'customer'
     
-    
 class Billing(db.Model) :
     id = db.Column(db.Integer,primary_key=True)
     customer_no = db.Column(db.String(10))
     customer_name = db.Column(db.String(100))
     customer_address = db.Column(db.String(100), nullable=True)
     billing_amount = db.Column(db.Integer)
-    applies_discount = db.Column(db.Integer, default=0)  # New field to indicate if a discount was applied
+    manual_discount = db.Column(db.Integer, default=0)
+    grant_total = db.Column(db.Integer)
     applies_discount_amount = db.Column(db.Integer, default=0)
     overall_discount_amount = db.Column(
         db.Integer,
@@ -137,8 +137,6 @@ def shop_login():
             flash('Invalid shop username or password', 'danger')
     return render_template('shop_login.html')
 
-# @app.route('/shop_dashboard')
-# @login_required
 @app.route('/shop_dashboard')
 def shop_dashboard():
     today_start = datetime.combine(datetime.utcnow().date(), time.min)
@@ -203,18 +201,23 @@ def new_billing():
     bill = Billing.query.all()
     products = Product.query.all()
     last_bill = Billing.query.order_by(Billing.id.desc()).first()
-    # If bills exist, add 1. If the table is empty, start at 1.
     next_bill_no = (last_bill.id + 1) if last_bill else 1
     selled_products = SelledProduct.query.order_by(SelledProduct.scanned_at.desc()).all()
     products = Product.query.filter_by(status='scanned').all()
     
     if request.method == 'POST':
+        discount_toggle_status = session.get('discount_toggle', 'no')
+        if discount_toggle_status == 'yes':
+            manual_percentage = request.form.get('manual_discount')
+        else:
+            manual_percentage = 0
         customer_no = request.form.get('customer_phone_number')
         customer_name = request.form.get('customer_name')
         customer_address = request.form.get('customer_address')
+        total_amount = request.form.get('total_amount')
         total_selling_count = request.form.get('total_selling_count')
         total_selling_amount = request.form.get('total_selling_amount')
-        manual_percentage = request.form.get('manual-percentage')
+        manual_percentage = request.form.get('manual_discount')
         
         customer = Customer.query.filter_by(customer_phone_number=customer_no).first()
         if not customer:
@@ -230,15 +233,13 @@ def new_billing():
             customer_name=customer_name,
             customer_address = customer_address,
             total_quantity=total_selling_count,
-            billing_amount = total_selling_amount,
-            applies_discount = manual_percentage,
-            applies_discount_amount = int(total_selling_amount) - (int(total_selling_amount) * int(manual_percentage) / 100) if manual_percentage else int(total_selling_amount)
-            
+            billing_amount = total_amount,
+            manual_discount = manual_percentage,
+            applies_discount_amount = total_selling_amount
         )
         
         db.session.add(billing)
         db.session.commit()
-        
         
         now_selled = Product.query.filter_by(status='scanned').all()
         
@@ -261,8 +262,6 @@ def new_billing():
             customer_name,
             billing
         )
-        
-        
         return redirect(url_for('bill_show_page', billing_id=next_bill_no))
         
     return render_template('new_billing.html',
@@ -274,6 +273,26 @@ def new_billing():
         next_bill_no=next_bill_no
     )
 
+@app.route('/update_discount_pref', methods=['POST'])
+@login_required
+def update_discount_pref():
+    data = request.get_json()
+    discount_value = data.get('discount')  # Will be 'yes' or 'no'
+    
+    # Option A: Save it to the Flask session (good for temporary page state)
+    session['discount_toggle'] = discount_value
+    
+    # Option B: Save it to the database (e.g., tied to the current user)
+    # current_user.discount_enabled = (discount_value == 'yes')
+    # db.session.commit()
+    
+    return jsonify({'success': True, 'message': 'Discount preference updated', 'value': discount_value})
+
+
+
+
+
+
 @app.route('/bill_show_page/<int:billing_id>')
 def bill_show_page(billing_id):
     billing = Billing.query.get_or_404(billing_id)
@@ -281,8 +300,6 @@ def bill_show_page(billing_id):
     shop = ShopDealer.query.all()
     products = Product.query.filter_by(billing_id=billing_id)
     return render_template('bill_show_page.html', billing=billing,selled=selled,shop=shop,products=products)
-
-
 
 @app.route("/temp_product",methods=['GET','POST'])
 def temp_product() :
