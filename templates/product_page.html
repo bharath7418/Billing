@@ -249,7 +249,7 @@
         // Delete confirmation modal trigger function
         function confirmDelete(productId, productName) {
             document.getElementById("deleteProductName").innerText = productName;
-            document.getElementById("deleteForm").action = "/delete_product/" + productId;
+            document.getElementById("deleteForm").action = "/roduct/delete_p" + productId;
             var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
             deleteModal.show();
         }

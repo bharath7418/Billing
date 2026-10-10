@@ -288,11 +288,6 @@ def update_discount_pref():
     
     return jsonify({'success': True, 'message': 'Discount preference updated', 'value': discount_value})
 
-
-
-
-
-
 @app.route('/bill_show_page/<int:billing_id>')
 def bill_show_page(billing_id):
     billing = Billing.query.get_or_404(billing_id)
@@ -388,6 +383,21 @@ def edit_product(id):
         
     return render_template('edit_product.html', product=product)
 
+@app.route('/delete_product/<int:product_id>', methods=['POST'])
+def delete_product(product_id):
+    # Find the product or return a 404 error if it doesn't exist
+    product = Product.query.get_or_404(product_id)
+    
+    try:
+        db.session.delete(product)
+        db.session.commit()
+        flash('Product deleted successfully!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error deleting product: {e}', 'danger')
+        
+    # Redirect back to your product inventory/list page
+    return redirect(url_for('product_page'))
 
 @app.route('/verify_id', methods=['POST'])
 def verify_id():
