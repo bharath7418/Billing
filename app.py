@@ -360,6 +360,35 @@ def customer_page():
     customers = Customer.query.all()
     return render_template('customer_page.html', customers=customers)
 
+
+@app.route('/product_page')
+@login_required
+def product_page() :
+    product = Product.query.all()
+    return render_template('product_page.html', product=product)
+
+
+@app.route('/edit_product/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_product(id):
+    product = Product.query.get_or_404(id)
+    
+    if request.method == 'POST':
+        product.product_name = request.form.get('product_name')
+        product.product_id = request.form.get('product_id')
+        product.product_selling_amount = request.form.get('product_selling_amount')
+        product.product_raw_amount = request.form.get('product_raw_amount') or None
+        product.discount = request.form.get('discount') or None
+        product.status = request.form.get('status')
+        product.product_location = request.form.get('product_location') or None
+        product.customer_phone_number = request.form.get('customer_phone_number') or None
+        
+        db.session.commit()
+        return redirect(url_for('product_page'))
+        
+    return render_template('edit_product.html', product=product)
+
+
 @app.route('/verify_id', methods=['POST'])
 def verify_id():
     Product_id = request.form.get('product_id')
@@ -403,7 +432,8 @@ def apply_discount(id):
         
         # 3. Reduce the selling amount value
         product.product_selling_amount = int(product.product_selling_amount - discount_value)
-        
+
+
         db.session.commit()
         flash(f"Successfully reduced price by {discount_percentage}%!", "success")
     else:

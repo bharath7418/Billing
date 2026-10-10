@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Product - Inventory System</title>
+    <!-- Bootstrap 5 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/product_page"><i class="fas fa-boxes-stacked me-2"></i>Inventory System</a>
+            <div class="d-flex">
+                <a href="/product_page" class="btn btn-outline-light btn-sm"><i class="fas fa-arrow-left me-1"></i> Back to Catalog</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                
+                <!-- Form Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2>Edit Product</h2>
+                        <p class="text-muted mb-0">Update information for product <strong>#{{ product.id }}</strong></p>
+                    </div>
+                </div>
+
+                <!-- Form Card -->
+                <div class="card p-4">
+                    <form method="POST">
+                        <div class="row g-3">
+                            
+                            <!-- Product Name -->
+                            <div class="col-md-6">
+                                <label for="product_name" class="form-label fw-bold">Product Name</label>
+                                <input type="text" class="form-control" id="product_name" name="product_name" value="{{ product.product_name }}" required>
+                            </div>
+
+                            <!-- Product ID / Code -->
+                            <div class="col-md-6">
+                                <label for="product_id" class="form-label fw-bold">Product ID / Code</label>
+                                <input type="text" class="form-control" id="product_id" name="product_id" value="{{ product.product_id or '' }}">
+                            </div>
+
+                            <!-- Selling Amount -->
+                            <div class="col-md-6">
+                                <label for="product_selling_amount" class="form-label fw-bold">Selling Amount</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₹</span>
+                                    <input type="number" class="form-control" id="product_selling_amount" name="product_selling_amount" value="{{ product.product_selling_amount }}" required>
+                                </div>
+                            </div>
+
+                            <!-- Raw Amount -->
+                            <div class="col-md-6">
+                                <label for="product_raw_amount" class="form-label fw-bold">Raw Amount</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₹</span>
+                                    <input type="number" class="form-control" id="product_raw_amount" name="product_raw_amount" value="{{ product.product_raw_amount or '' }}">
+                                </div>
+                            </div>
+
+                            <!-- Discount -->
+                            <div class="col-md-6">
+                                <label for="discount" class="form-label fw-bold">Discount (%)</label>
+                                <input type="number" class="form-control" id="discount" name="discount" value="{{ product.discount or '' }}" placeholder="e.g., 10">
+                            </div>
+
+                            <!-- Status -->
+                            <div class="col-md-6">
+                                <label for="status" class="form-label fw-bold">Status</label>
+                                <select class="form-select" id="status" name="status">
+                                    <option value="active" {% if product.status == 'active' %}selected{% endif %}>Active</option>
+                                    <option value="sold" {% if product.status == 'sold' %}selected{% endif %}>Sold</option>
+                                    <option value="expired" {% if product.status == 'expired' %}selected{% endif %}>Expired</option>
+                                </select>
+                            </div>
+
+                            <!-- Product Location -->
+                            <div class="col-md-6">
+                                <label for="product_location" class="form-label fw-bold">Location</label>
+                                <input type="text" class="form-control" id="product_location" name="product_location" value="{{ product.product_location or '' }}">
+                            </div>
+
+                            <!-- Customer Phone Number -->
+                            <div class="col-md-6">
+                                <label for="customer_phone_number" class="form-label fw-bold">Customer Phone Number</label>
+                                <input type="text" class="form-control" id="customer_phone_number" name="customer_phone_number" value="{{ product.customer_phone_number or '' }}" maxlength="10">
+                            </div>
+
+                            <!-- Submit / Cancel Buttons -->
+                            <div class="col-12 mt-4 d-flex justify-content-end gap-2">
+                                <a href="/product_page" class="btn btn-secondary">Cancel</a>
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Save Changes</button>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
