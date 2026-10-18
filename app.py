@@ -15,7 +15,7 @@ from sqlalchemy import func
 
 app  = Flask(__name__)
 
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'pro_secret_key_99')
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
 raw_db_url = os.getenv('DATABASE_URL')
 use_tmp_sqlite = os.getenv('VERCEL') == '1'
@@ -716,12 +716,20 @@ def logout():
 
 with app.app_context():
     db.create_all()
-    if not User.query.filter_by(username='admin').first():
-        admin_user = User(username='admin', password='admin')
+    admin_user1 = os.getenv('admin_user')
+    admin_pass1 = os.getenv('admin_pass')
+    
+    shop_name = os.getenv('shop_name')
+    shop_username = os.getenv('shop_username')
+    shop_password = os.getenv('shop_password')
+    
+    
+    if not User.query.filter_by(username='admin_user1').first():
+        admin_user = User(username='admin_user1', password='admin_pass1')
         db.session.add(admin_user)
         db.session.commit()
-    if not ShopDealer.query.filter_by(shop_name='RAMAJAYAM').first():
-        admin_shop = ShopDealer(shop_name='RAMAJAYAM',shop_username='ramajayam',password='ram',shop_title='Tailors & Readymades',shop_location='Bypass Road, Pernamallur.\n Vandavasi Tk, Tiruvannamallai District - 604 503.',shop_phone_number='9364290146')
+    if not ShopDealer.query.filter_by(shop_name='shop_name').first():
+        admin_shop = ShopDealer(shop_name='shop_name',shop_username='shop_username',password='shop_password',shop_title='Tailors & Readymades',shop_location='Bypass Road, Pernamallur.\n Vandavasi Tk, Tiruvannamallai District - 604 503.',shop_phone_number='9364290146')
         db.session.add(admin_shop)
         db.session.commit()
 
