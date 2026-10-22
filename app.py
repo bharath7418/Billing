@@ -11,21 +11,12 @@ from flask_migrate import Migrate
 import pandas as pd
 import requests
 from sqlalchemy import func
+from config import Configonfig
 
 
 app  = Flask(__name__)
 
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
-raw_db_url = os.getenv('DATABASE_URL')
-use_tmp_sqlite = os.getenv('VERCEL') == '1'
-if raw_db_url:
-    app.config['SQLALCHEMY_DATABASE_URI'] = raw_db_url.replace("postgres://", "postgresql://", 1)
-elif use_tmp_sqlite:
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/database.db'
-else:
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
