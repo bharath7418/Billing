@@ -706,7 +706,7 @@ def logout():
     return redirect(url_for('welcome'))
 
 with app.app_context():
-    db.create_all()
+   ## db.create_all()
     admin_user1 = os.getenv('admin_user')
     admin_pass1 = os.getenv('admin_pass')
     
