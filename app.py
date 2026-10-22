@@ -11,7 +11,7 @@ from flask_migrate import Migrate
 import pandas as pd
 import requests
 from sqlalchemy import func
-from config import Configonfig
+from config import Config
 
 
 app  = Flask(__name__)
