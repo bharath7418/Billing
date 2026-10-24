@@ -645,12 +645,12 @@ def logout():
 
 with app.app_context():
     db.create_all()
-    admin_user1 = os.getenv('admin_user')
-    admin_pass1 = os.getenv('admin_pass')
+    admin_user1 = os.getenv('ADMIN_USER')
+    admin_pass1 = os.getenv('ADMIN_PASS')
     
-    shop_name = os.getenv('shop_name')
-    shop_username = os.getenv('shop_username')
-    shop_password = os.getenv('shop_password')
+    shop_name = os.getenv('SHOP_NAME')
+    shop_username = os.getenv('SHOP_USERNAME')
+    shop_password = os.getenv('SHOP_PASSWORD')
     
     
     if not User.query.filter_by(username='admin_user1').first():
