@@ -11,8 +11,8 @@ class Config() :
     use_tmp_sqlite = os.getenv('VERCEL') == '1'
     if raw_db_url:
         SQLALCHEMY_DATABASE_URI = raw_db_url.replace("postgres://", "postgresql://", 1)
-    # elif use_tmp_sqlite:
-    #     SQLALCHEMY_DATABASE_URI =  'sqlite:////tmp/database.db'
-    # else:
-    #     SQLALCHEMY_DATABASE_URI = 'sqlite:///database.db'
+    elif use_tmp_sqlite:
+        SQLALCHEMY_DATABASE_URI =  'sqlite:////tmp/database.db'
+    else:
+        SQLALCHEMY_DATABASE_URI = 'sqlite:///database.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False

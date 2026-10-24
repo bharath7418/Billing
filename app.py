@@ -15,25 +15,25 @@ from sqlalchemy import func
 from config import Config
 from datetime import timedelta
 from flask_cors import CORS
+from zoneinfo import ZoneInfo
+
+# Fetch the exact time specifically for India
+local_time = datetime.now(ZoneInfo("Asia/Kolkata"))
 
 
 app  = Flask(__name__)
 
-login_manager = LoginManager(app)
-login_manager.init_app(app)
-login_manager.login_view = 'shop_login'
-
-#Migrate Procedure
-migrate = Migrate(app, db)
-
 app.config.from_object(Config)
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=15)
 CORS(app) 
-
-
 db.init_app(app)
 
+login_manager = LoginManager(app)
+login_manager.init_app(app)
+login_manager.login_view = 'welcome'
 
+#Migrate Procedure
+migrate = Migrate(app, db)
               
 @login_manager.user_loader
 def load_user(user_id):
