@@ -8,7 +8,7 @@ pandas
 openpyxl
 requests
 SQLAlchemy
-psycopg2-binary==2.9.9
+psycopg[binary]
 python-dotenv==1.0.1
 Flask-Cors==4.0.0
 gunicorn==21.2.0
