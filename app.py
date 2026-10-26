@@ -4,6 +4,7 @@ import os
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 import qrcode
+from datetime import datetime, time, timezone
 from models import db, User, ShopDealer, Product, SelledProduct, Customer, Billing
 import io
 import base64
@@ -40,11 +41,12 @@ def load_user(user_id):
     # Flask-Login sessions store IDs as strings, so we convert to int
     uid = int(user_id)
     
-    user = User.query.get(uid)
-    if user:
-        return user
+    # user = User.query.get(uid)
+    # if user:
+    #     return user
 
-    shop_dealer = ShopDealer.query.get(uid)
+# item = db.session.get(Item, item_id)
+    shop_dealer = db.session.get(ShopDealer,uid)
     if shop_dealer:
         return shop_dealer
     return None
@@ -68,7 +70,7 @@ def shop_login():
 
 @app.route('/shop_dashboard')
 def shop_dashboard():
-    today_start = datetime.combine(datetime.utcnow().date(), time.min)
+    today_start = datetime.combine(datetime.now(timezone.utc).date(), time.min)
     
     # 1. Daily Billing Count
     daily_billing_count = Billing.query.filter(Billing.billing_date >= today_start).count()
