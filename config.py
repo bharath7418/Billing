@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Config() :
-    SECRET_KEY = os.getenv('SECRET_KEY', 'pro_secret_key_99')
+    SECRET_KEY = os.getenv('SECRET_KEY')
 
     raw_db_url = os.getenv('DATABASE_URL')
     use_tmp_sqlite = os.getenv('VERCEL') == '1'
