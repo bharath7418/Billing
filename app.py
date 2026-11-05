@@ -149,6 +149,8 @@ def new_billing():
         total_selling_count = request.form.get('total_selling_count')
         total_selling_amount = request.form.get('total_selling_amount')
         manual_percentage = request.form.get('manual_discount')
+        grant_total = request.form.get('final_grant_amount')
+        applies_discount_amount = request.form.get('grant_manual_percentage')
         
         customer = Customer.query.filter_by(customer_phone_number=customer_no).first()
         if not customer:
@@ -166,7 +168,9 @@ def new_billing():
             total_quantity=total_selling_count,
             billing_amount = total_amount,
             manual_discount = manual_percentage,
-            applies_discount_amount = total_selling_amount
+            applies_discount_amount = total_selling_amount,
+            grant_total =applies_discount_amount,
+            
         )
         
         db.session.add(billing)

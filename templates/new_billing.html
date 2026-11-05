@@ -437,11 +437,14 @@
                         {% set total_count = namespace(value=0) %}
                         {% set total_selling_amount = namespace(value=0) %}
                         {% set total_amount = namespace(value=0) %}
+                        {% set grant_manual_percentage = namespace(value=0) %}
+                        {% set grant_amount = namespace(value=0) %}
 
                         {% for p in products %}
                         {% set total_count.value = total_count.value + 1 %}
                         {% set total_selling_amount.value = total_selling_amount.value + p.product_selling_amount %}
                         {% set total_amount.value = total_amount.value + p.backup_product_selling_amount %}
+                        
 
                         <tr>
                             <td><strong>ID:</strong> {{ p.id }}</td>
@@ -496,15 +499,28 @@
                             </td>
                         </tr>
 
+
                         <!-- Row 4: Final Amount -->
                         <tr style="border-top: 1px solid var(--border-color);">
                             <td colspan="3" style="text-align: right;">Final Amount:</td>
                             <td>
-                                <span id="final-total-display"
+
+                                <span 
                                     style="color: var(--text-main); font-size: 1.15rem; font-weight: bold;">₹{{
                                     total_selling_amount.value }}</span>
                             </td>
                         </tr>
+                        
+                        <tr style="border-top: 1px solid var(--border-color);">
+                            <td colspan="3" style="text-align: right;">Extra Discount:</td>
+                            <td>
+                                <p> <span id="display-value"></span>%</p>
+                                
+                                
+                            </td>
+                            
+                        </tr>
+
 
                         <tr style="background-color: #f1f5f9; border-top: 1px dashed var(--border-color);">
                             <td>Total Items: {{ total_count.value }}</td>
@@ -524,13 +540,16 @@
 
                                     <!-- Added name="manual_discount" so Flask can receive it -->
                                     <input type="number" id="manual-percentage" name="manual_discount" min="1" max="100"
-                                        placeholder="%" onkeyup="calculateManualDiscount()"
-                                        oninput="calculateManualDiscount()"
+                                        placeholder="%" onkeyup="change_discount()"
+                                        oninput="change_discount()"
                                         style="width: 70px; padding: 6px; border: 1px solid var(--border-color); border-radius: 6px;">
 
                                     <span style="font-size: 0.85rem; font-weight: normal; color: var(--text-muted);">% off</span>
                                 </div>
                             </td>
+                            <td>Grant Total</td>
+                            
+                            <td>₹<span id="display-grant-amount">0.00</span></td>
                         </tr>
                     </tfoot>
 
@@ -563,7 +582,13 @@
                     <input type="hidden" name="total_selling_amount" value="{{ total_selling_amount.value }}">
                     <input type="hidden" name="manual-percentage" id="hidden_manual_percentage" value="0">
                     <input type="hidden" name="total_amount" value="{{ total_amount.value }}">
+                    <!-- Hidden input that will submit the final calculated grant amount to Python/Flask -->
+                    <input type="hidden" name="final_grant_amount" id="hidden_grant_amount">
+
+                    <!-- (Optional) If you also want to submit the manual percentage entered -->
+                    <input type="hidden" name="grant_manual_percentage" id="hidden_manual_percentage">
                     <button type="submit" class="btn-submit" style="margin-top: 8px;">Submit Billing & Print</button>
+                    
                 </form>
             </div>
         </section>
@@ -723,34 +748,40 @@
                 resetTotals();
             }
         }
+        
+        // Store the value globally or within a module state
 
-        function calculateManualDiscount() {
-            const container = document.getElementById('input-container');
-            const inputField = document.getElementById('manual-percentage');
-            const discountRow = document.getElementById('discount-row');
-            const finalAmountDisplay = document.getElementById('final-total-display');
+       let grant_manual_percentage = 0;
 
-            // 1. Get the base total (store this in your container's data attribute)
-            const baseTotal = parseFloat(container.dataset.baseTotal) || 0;
+    const total_selling_amount = parseFloat("{{ total_selling_amount.value }}") || 0;
 
-            // 2. Get the percentage value entered by the user
-            let percent = parseFloat(inputField.value) || 0;
+    function change_discount() {
+        const inputElement = document.getElementById('manual-percentage');
+        let value = parseFloat(inputElement.value) || 0;
 
-            // Validation: Keep percentage between 0 and 100
-            if (percent < 0) percent = 0;
-            if (percent > 100) percent = 100;
+        if (value > 100) value = 100;
+        if (value < 0) value = 0;
 
-            // 3. Calculations
-            const discountAmount = (baseTotal * percent) / 100;
-            const grantAmount = baseTotal - discountAmount;
+        let grant_manual_percentage = value;
 
-            // 4. Update the UI display element with the new final amount
-            if (finalAmountDisplay) {
-                finalAmountDisplay.innerText = grantAmount.toFixed(2);
-            }
+        // Update visual displays on the screen
+        document.getElementById('display-value').innerText = grant_manual_percentage;
 
-            return grantAmount;
-        }
+        // Calculate the grant amount
+        var grant_amount = total_selling_amount - (total_selling_amount * grant_manual_percentage) / 100;
+
+        // Update table span display
+        document.getElementById('display-grant-amount').innerText = grant_amount.toFixed(2);
+
+        // -> UPDATE THE HIDDEN INPUTS SO THEY SUBMIT TO FLASK
+        document.getElementById('hidden_grant_amount').value = grant_amount.toFixed(2);
+        document.getElementById('hidden_manual_percentage').value = grant_manual_percentage;
+
+        console.log("Updated stored percentage:", grant_manual_percentage);
+        console.log("Calculated grant amount:", grant_amount);
+    }
+
+    
 
 
     </script>
