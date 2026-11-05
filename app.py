@@ -12,7 +12,7 @@ from datetime import date, datetime, time
 from flask_migrate import Migrate
 import pandas as pd
 import requests
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from config import Config
 from datetime import timedelta
 from flask_cors import CORS
@@ -126,6 +126,7 @@ def search_contact(customer_no):
         "customer_address": customer.customer_address
     })
 
+
 @app.route('/new_billing', methods=['GET', 'POST'])
 @login_required
 def new_billing():
@@ -189,7 +190,7 @@ def new_billing():
             billing
         )
         return redirect(url_for('bill_show_page', billing_id=next_bill_no))
-        
+    
     return render_template('new_billing.html',
         selled_products=selled_products, 
         products=products,
@@ -228,6 +229,7 @@ def temp_product() :
         name = request.form.get('product_name')
         serial = request.form.get('product_id')
         amount = request.form.get('product_amount')
+        
 
         temp = Product(
             product_name = name,
@@ -248,6 +250,8 @@ def temp_product() :
         add_product = SelledProduct(
                 selled_product_name=name,
                 selled_product_id=serial,
+                selled_product_amount = amount,
+                
             )
         db.session.add(add_product)
         db.session.commit()
@@ -335,7 +339,9 @@ def verify_id():
         return redirect(url_for('new_billing'))
         
     # 2. Query the database for the letter
-    product = Product.query.filter_by(id=Product_id).first()
+    product = Product.query.filter(
+    or_(Product.id == Product_id, Product.product_id == Product_id)
+).first()
     
     # 3. Check if the letter exists and if it is 'Approved'
     if not product or product.status != 'active':
