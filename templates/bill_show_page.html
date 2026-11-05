@@ -323,15 +323,26 @@
             </table>
 
             <!-- Summary Section -->
+            <table>
+                <tr>
+                    <td>Bill Amount</td>
+                    <td>{{ billing.billing_amount }}</td>
+                </tr>
+                <tr>
+                    <td>Total Amount</td>
+                    <td>{{ billing.applies_discount_amount }}</td>
+                </tr>
+                <tr>
+                    <td>Total Save</td>
+                    <td>{{ billing.billing_amount-billing.grant_total }}</td>
+                </tr>
 
-            550 - 522
-            550 - 522
+                <tr>
+                    <td>Grant Total</td>
+                    <td>{{ billing.grant_total }}</td>
+                </tr>
 
-
-            total Amount = 1100
-            Saved Amount = 56
-            Final Amount = 1044
-
+            </table>
 
         </div>
 

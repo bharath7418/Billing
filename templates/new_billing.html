@@ -584,9 +584,6 @@
                     <input type="hidden" name="total_amount" value="{{ total_amount.value }}">
                     <!-- Hidden input that will submit the final calculated grant amount to Python/Flask -->
                     <input type="hidden" name="final_grant_amount" id="hidden_grant_amount">
-
-                    <!-- (Optional) If you also want to submit the manual percentage entered -->
-                    <input type="hidden" name="grant_manual_percentage" id="hidden_manual_percentage">
                     <button type="submit" class="btn-submit" style="margin-top: 8px;">Submit Billing & Print</button>
                     
                 </form>
@@ -775,7 +772,6 @@
 
         // -> UPDATE THE HIDDEN INPUTS SO THEY SUBMIT TO FLASK
         document.getElementById('hidden_grant_amount').value = grant_amount.toFixed(2);
-        document.getElementById('hidden_manual_percentage').value = grant_manual_percentage;
 
         console.log("Updated stored percentage:", grant_manual_percentage);
         console.log("Calculated grant amount:", grant_amount);
