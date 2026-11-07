@@ -65,7 +65,7 @@ class Billing(db.Model) :
     customer_name = db.Column(db.String(100))
     customer_address = db.Column(db.String(100), nullable=True)
     billing_amount = db.Column(db.Integer)
-    grant_total = db.Column(db.Integer,default=0)
+    grant_total = db.Column(db.Integer,nullable=True)
     applies_discount_amount = db.Column(db.Integer, default=0)
     overall_discount_amount = db.Column(
         db.Integer,
