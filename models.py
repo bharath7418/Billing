@@ -47,7 +47,7 @@ class SelledProduct(db.Model) :
     id = db.Column(db.Integer,primary_key=True)
     billing_id = db.Column(db.Integer, db.ForeignKey('billing.id'), nullable=True)
     selled_product_name = db.Column(db.String(100))
-    selled_product_id = db.Column(db.String(100))
+    selled_product_id = db.Column(db.Integer, nullable=False)
     selled_product_amount = db.Column(db.Integer)
     scanned_at = db.Column(db.DateTime, default=datetime.utcnow)
     
