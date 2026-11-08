@@ -59,18 +59,21 @@ class Customer(db.Model) :
     customer_address = db.Column(db.String(200))
     __tablename__ = 'customer'
     
-class Billing(db.Model) :
-    id = db.Column(db.Integer,primary_key=True)
+from sqlalchemy import Numeric
+
+class Billing(db.Model):
+    __tablename__ = 'billing'
+    id = db.Column(db.Integer, primary_key=True)
     customer_no = db.Column(db.String(10))
     customer_name = db.Column(db.String(100))
     customer_address = db.Column(db.String(100), nullable=True)
-    billing_amount = db.Column(db.Integer)
-    grant_total = db.Column(db.Integer,nullable=True)
-    applies_discount_amount = db.Column(db.Integer, default=0)
+    billing_amount = db.Column(Numeric(10, 2))
+    grant_total = db.Column(Numeric(10, 2), default=0, nullable=True)
+    applies_discount_amount = db.Column(Numeric(10, 2), default=0)
     overall_discount_amount = db.Column(
-        db.Integer,
+        Numeric(10, 2),
         db.Computed("billing_amount - applies_discount_amount")
     )
-    total_quantity = db.Column(db.Integer)
+    total_quantity = db.Column(db.Integer)  # Quantity remains an Integer
     billing_date = db.Column(db.DateTime, default=datetime.utcnow)
     billing_products = db.relationship('SelledProduct', backref='billing', lazy=True)
