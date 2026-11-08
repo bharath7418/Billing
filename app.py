@@ -126,6 +126,10 @@ def search_contact(customer_no):
         "customer_address": customer.customer_address
     })
 
+def safe_float(value):
+    if value is None or str(value).strip() == '':
+        return None  # Or return 0.0 if your database column doesn't allow NULL
+    return float(value)
 
 @app.route('/new_billing', methods=['GET', 'POST'])
 @login_required
@@ -144,7 +148,8 @@ def new_billing():
         total_amount = request.form.get('total_amount')
         total_selling_count = request.form.get('total_selling_count')
         total_selling_amount = request.form.get('total_selling_amount')
-        grant_total = request.form.get('final_grant_amount')
+        grant_total = safe_float(request.form.get('final_grant_amount'))
+        # grant_total = request.form.get('final_grant_amount')
         
         customer = Customer.query.filter_by(customer_phone_number=customer_no).first()
         if not customer:
@@ -652,8 +657,8 @@ with app.app_context():
     admin_pass1 = os.getenv('ADMIN_PASS')
     
     shop_name = os.getenv('SHOP_NAME')
-    shop_username = os.getenv('SHOP_USERNAME')
-    shop_password = os.getenv('SHOP_PASSWORD')
+    ramajayam = os.getenv('SHOP_USERNAME')
+    ram = os.getenv('SHOP_PASSWORD')
     
     
     if not User.query.filter_by(username='admin_user1').first():
@@ -661,7 +666,7 @@ with app.app_context():
         db.session.add(admin_user)
         db.session.commit()
     if not ShopDealer.query.filter_by(shop_name='shop_name').first():
-        admin_shop = ShopDealer(shop_name='shop_name',shop_username='shop_username',password='shop_password',shop_title='Tailors & Readymades',shop_location='Bypass Road, Pernamallur.\n Vandavasi Tk, Tiruvannamallai District - 604 503.',shop_phone_number='9364290146')
+        admin_shop = ShopDealer(shop_name='shop_name',shop_username='ramajayam',password='ram',shop_title='Tailors & Readymades',shop_location='Bypass Road, Pernamallur.\n Vandavasi Tk, Tiruvannamallai District - 604 503.',shop_phone_number='9364290146')
         db.session.add(admin_shop)
         db.session.commit()
 
