@@ -30,6 +30,33 @@
       .action-panel, .nav-actions {
         display: block; /* Hidden during print */
       }
+      .bt-control-panel {
+        margin-bottom: 10px;
+        padding-bottom: 8px;
+        border-bottom: 1px dashed #000;
+      }
+      .btn-bt {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 5px;
+        background: #16a34a;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 11px;
+      }
+      .btn-bt:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .bt-status {
+        font-size: 10px;
+        margin-bottom: 5px;
+        text-align: center;
+        font-weight: bold;
+      }
       .receipt-card {
         width: 100%;
       }
@@ -84,7 +111,7 @@
         body {
           width: 48mm;
         }
-        .action-panel, .nav-actions {
+        .action-panel, .nav-actions, .bt-control-panel {
           display: none !important;
         }
         @page {
@@ -97,6 +124,13 @@
 
   <body>
     <div class="container">
+      <!-- Bluetooth Printer Integration Panel (Added without affecting logic) -->
+      <div class="bt-control-panel">
+        <div id="bt-status" class="bt-status">Printer: Disconnected</div>
+        <button id="btn-bt-connect" class="btn-bt" style="background: #2563eb;">1. Connect MT580P</button>
+        <button id="btn-bt-print" class="btn-bt" disabled>2. Print via Bluetooth</button>
+      </div>
+
       <!-- Top Action Buttons -->
       <div class="action-panel">
         <button class="btn print-btn" onclick="window.print()">
@@ -189,5 +223,169 @@
         <a href="/shop_dashboard" class="btn complete-btn">Complete & Return</a>
       </div>
     </div>
+
+    <!-- Web Bluetooth Integration Script -->
+    <script>
+      let printCharacteristic = null;
+      let bluetoothDevice = null;
+
+      const btnBtConnect = document.getElementById('btn-bt-connect');
+      const btnBtPrint = document.getElementById('btn-bt-print');
+      const btStatus = document.getElementById('bt-status');
+
+      const PRINTER_SERVICES = [
+          '000018f0-0000-1000-8000-00805f9b34fb',
+          '0000fff0-0000-1000-8000-00805f9b34fb',
+          '0000ffe0-0000-1000-8000-00805f9b34fb',
+          '49535343-fe7d-4ae5-8fa9-9fafd205e455'
+      ];
+
+      btnBtConnect.addEventListener('click', async () => {
+          try {
+              btStatus.textContent = 'Scanning for MT580P...';
+              bluetoothDevice = await navigator.bluetooth.requestDevice({
+                  filters: [{ namePrefix: 'MT580' }],
+                  optionalServices: PRINTER_SERVICES
+              });
+
+              bluetoothDevice.addEventListener('gattserverdisconnected', () => {
+                  printCharacteristic = null;
+                  btStatus.textContent = 'Printer: Disconnected';
+                  btStatus.style.color = '#991b1b';
+                  btnBtPrint.disabled = true;
+              });
+
+              btStatus.textContent = 'Connecting...';
+              const server = await bluetoothDevice.gatt.connect();
+
+              for (const uuid of PRINTER_SERVICES) {
+                  try {
+                      const service = await server.getPrimaryService(uuid);
+                      const characteristics = await service.getCharacteristics();
+                      for (const char of characteristics) {
+                          if (char.properties.write || char.properties.writeWithoutResponse) {
+                              printCharacteristic = char;
+                              break;
+                          }
+                      }
+                      if (printCharacteristic) break;
+                  } catch (e) {}
+              }
+
+              if (!printCharacteristic) throw new Error('No writable characteristic found.');
+
+              btStatus.textContent = 'Connected: ' + bluetoothDevice.name;
+              btStatus.style.color = '#166534';
+              btnBtPrint.disabled = false;
+          } catch (error) {
+              console.error(error);
+              btStatus.textContent = 'Error: ' + error.message;
+              btStatus.style.color = '#991b1b';
+          }
+      });
+
+      function formatRow(left, right, width = 32) {
+          const spaceCount = Math.max(1, width - left.length - right.length);
+          return left + ' '.repeat(spaceCount) + right + '\n';
+      }
+
+      function extractReceiptData() {
+          const shopName = document.querySelector('.shop-name')?.innerText.trim() || 'STORE';
+          const shopTitle = document.querySelector('.shop-title')?.innerText.trim() || '';
+          const shopLocation = document.querySelector('.shop-details')?.innerText.trim() || '';
+          const shopPhone = document.querySelector('.shop-details:nth-of-type(2)')?.innerText.replace('Phone: ', '').trim() || '';
+          
+          const invId = document.querySelector('.invoice-id')?.innerText.trim() || 'Inv: #';
+          const invDate = document.querySelector('.invoice-meta .text-right span')?.innerText.trim() || '';
+
+          const items = [];
+          document.querySelectorAll('.items-table tbody tr').forEach(tr => {
+              const cols = tr.querySelectorAll('td');
+              if (cols.length >= 2) {
+                  const name = cols[0].innerText.trim();
+                  const priceEl = cols[1].querySelector('.price-current') || cols[1];
+                  const price = parseFloat(priceEl.innerText.replace('₹', '').trim()) || 0;
+                  items.push({ name, price });
+              }
+          });
+
+          let grantTotal = '';
+          document.querySelectorAll('.container table:last-of-type tr').forEach(tr => {
+              const td = tr.querySelectorAll('td');
+              if (td.length >= 2 && td[0].innerText.includes('Total')) {
+                  grantTotal = td[1].innerText.replace('₹', '').trim();
+              }
+          });
+
+          return { shopName, shopTitle, shopLocation, shopPhone, invId, invDate, items, grantTotal };
+      }
+
+      function generateESC_POS(data) {
+          const encoder = new TextEncoder();
+          const ESC = 0x1B;
+          const GS = 0x1D;
+          const line = '-'.repeat(32) + '\n';
+          
+          let body = '';
+          body += line;
+          body += formatRow(data.invId, data.invDate);
+          body += line;
+          body += formatRow('Item', 'Amt');
+          body += line;
+
+          data.items.forEach(item => {
+              body += formatRow(item.name.substring(0, 22), item.price.toFixed(2));
+          });
+
+          body += line;
+          if (data.grantTotal) {
+              body += formatRow('Grant Total:', 'Rs.' + data.grantTotal);
+          }
+          body += line;
+
+          const payload = [
+              ESC, 0x40,
+              ESC, 0x61, 0x01,
+              ESC, 0x45, 0x01,
+              ...encoder.encode(data.shopName + '\n'),
+              ESC, 0x45, 0x00,
+              ...encoder.encode(data.shopTitle + '\n'),
+              ...encoder.encode(data.shopLocation + '\n'),
+              ...encoder.encode('Ph: ' + data.shopPhone + '\n'),
+              ESC, 0x61, 0x00,
+              ...encoder.encode(body),
+              ESC, 0x61, 0x01,
+              ...encoder.encode('\nThank You! Visit Again\n\n\n'),
+              ESC, 0x64, 0x03
+          ];
+
+          return new Uint8Array(payload);
+      }
+
+      btnBtPrint.addEventListener('click', async () => {
+          if (!printCharacteristic) return;
+          try {
+              btStatus.textContent = 'Printing...';
+              const data = extractReceiptData();
+              const bytes = generateESC_POS(data);
+              
+              const CHUNK = 20;
+              for (let i = 0; i < bytes.length; i += CHUNK) {
+                  const chunk = bytes.slice(i, i + CHUNK);
+                  if (printCharacteristic.properties.writeWithoutResponse) {
+                      await printCharacteristic.writeValueWithoutResponse(chunk);
+                  } else {
+                      await printCharacteristic.writeValue(chunk);
+                  }
+              }
+              btStatus.textContent = 'Printed successfully!';
+              btStatus.style.color = '#166534';
+          } catch (err) {
+              console.error(err);
+              btStatus.textContent = 'Print failed: ' + err.message;
+              btStatus.style.color = '#991b1b';
+          }
+      });
+    </script>
   </body>
 </html>
