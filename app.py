@@ -336,7 +336,7 @@ def delete_product(product_id):
 
 @app.route('/verify_id', methods=['POST'])
 def verify_id():
-    Product_id = request.form.get('product_id')
+    Product_id = int(request.form.get('product_id'))
     
     # 1. Check if the ID was actually provided
     if not Product_id:
@@ -344,9 +344,12 @@ def verify_id():
         return redirect(url_for('new_billing'))
         
     # 2. Query the database for the letter
+    
     product = Product.query.filter(
     or_(Product.id == Product_id, Product.product_id == Product_id)
 ).first()
+    
+    
     
     # 3. Check if the letter exists and if it is 'Approved'
     if not product or product.status != 'active':
