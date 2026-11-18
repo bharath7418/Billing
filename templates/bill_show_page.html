@@ -146,6 +146,7 @@
         </a>
       </div>-->
 
+      
       <!-- Receipt Card -->
       <div class="receipt-card">
         <header class="shop-header">
@@ -189,35 +190,50 @@
             {% endfor %}
           </tbody>
         </table>
-
-        <!-- Summary Section -->
+<!-- Summary Section -->
         <table>
+          <tr>
+            <td>Bill Amount</td>
+            <td class="text-right">₹{{ billing.billing_amount }}</td>
+          </tr>
+
           {% if billing.billing_amount != billing.applies_discount_amount %}
             <tr>
-              <td>Bill Amount</td>
-              <td class="text-right">₹{{ billing.billing_amount }}</td>
+              <td>Total Save</td>
+              <td class="text-right">₹{{ ((billing.billing_amount|float) - (billing.applies_discount_amount|float))|round(1) }}</td>
             </tr>
             <tr>
               <td>Total Amount</td>
               <td class="text-right">₹{{ billing.applies_discount_amount }}</td>
             </tr>
-            <tr>
-              <td>Total Save</td>
-              <td class="text-right">₹{{ ((billing.billing_amount|float) - (billing.grant_total|float))|round(1) }}</td>
-            </tr>
-            <tr>
-              <td><strong>Grant Total</strong></td>
-              <td class="text-right"><strong>₹{{ billing.grant_total }}</strong></td>
-            </tr>
+            
 
-          {% else %}
+            {% if billing.grant_total != 0 %}
             <tr>
-              <td>Bill Amount</td>
-              <td class="text-right">₹{{ billing.billing_amount }}</td>
-            </tr>
+                <td><strong>Overall Save</strong></td>
+                <td class="text-right"><strong>₹{{ billing.billing_amount - billing.grant_total }}</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Grand Total</strong></td>
+                <td class="text-right"><strong>₹{{ billing.grant_total }}</strong></td>
+              </tr>
+            {% endif %}
+
+            
+          {% endif %}
+
+          {% if billing.billing_amount == billing.applies_discount_amount and billing.grant_total !=0 %}
+          <td><strong>Overall Save</strong></td>
+                <td class="text-right"><strong>₹{{ billing.billing_amount - billing.grant_total }}</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Grand Total</strong></td>
+                <td class="text-right"><strong>₹{{ billing.grant_total }}</strong></td>
+              </tr>
+
           {% endif %}
         </table>
-      </div>
+      
       
       <div class="nav-actions">
         <a href="/shop_dashboard" class="btn complete-btn">Complete & Return</a>
