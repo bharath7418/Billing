@@ -163,7 +163,7 @@
             <span class="invoice-id">Inv: #{{ billing.id }}</span>
           </div>
           <div class="meta-group text-right">
-            <span>Date: {{ billing.billing_date }}</span>
+            <span>Date: {{ billing.billing_date.strftime('%Y-%m-%d') }} </span>
           </div>
         </div>
 
@@ -221,7 +221,7 @@
 
             
           {% endif %}
-
+ 
           {% if billing.billing_amount == billing.applies_discount_amount and billing.grant_total !=0 %}
           <td><strong>Overall Save</strong></td>
                 <td class="text-right"><strong>₹{{ billing.billing_amount - billing.grant_total }}</strong></td>
