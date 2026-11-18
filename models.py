@@ -24,7 +24,7 @@ class Product(db.Model) :
     id = db.Column(db.Integer,primary_key=True)
     billing_id = db.Column(db.Integer, db.ForeignKey('billing.id'), nullable=True)
     product_name = db.Column(db.String(100))
-    product_id = db.Column(db.String(100), nullable=True)
+    product_id = db.Column(db.Integer, nullable=True)
     product_selling_amount = db.Column(db.Integer)
     product_raw_amount = db.Column(db.Integer,nullable=True) 
     backup_product_selling_amount = db.Column(db.Integer, nullable=True,default=None)  # New field to store the original selling amount for discount restoration
